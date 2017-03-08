@@ -163,15 +163,46 @@ def admin_0_boundaries_layer():
     layer.styles.append(admin_0_boundaries_style())
     return layer
 
+
+# A state
+
+def state_style(state_name):
+    name = 'State Style ' + state_name
+
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_name))
+
+    ps = PolygonSymbolizer()
+    ps.fill = Color('red')
+    r.symbols.append(ps)
+
+    s.rules.append(r)
+    m.append_style(name, s)
+    return name
+
+def state_layer(state_name):
+    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp'))
+    layer = Layer(state_name)
+    layer.datasource = ds
+    layer.styles.append(state_style(state_name))
+    return layer
+
+
 # Create and add all layers
 
 m.layers.append(land_layer())
 m.layers.append(usa_layer())
 m.layers.append(land_boundaries_layer())
+
+#m.layers.append(state_layer('UT'))
+
 m.layers.append(states_layer())
 m.layers.append(lakes_layer())
 m.layers.append(admin_0_boundaries_layer())
 
+#m.layers[3] = state_layer('California')
 
 # Zoom the map
 
@@ -186,4 +217,20 @@ m.zoom(0.96)
 # Render to a file
 
 render_to_file(m, 'usa48.png', 'png', 1.0) # 'png256' for 8-bit png
+
+# Render all states
+
+states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+          'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD',
+          'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH',
+          'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+          'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WY', 'WV', 'WY']
+
+m.layers[3:3] = state_layer(states[0])
+
+for state in states:
+    print("Processing: {0}".format(state))
+    m.layers[3] = state_layer(state)
+    render_to_file(m, '{0}.png'.format(state), 'png', 1.0)
+
 print("done")
