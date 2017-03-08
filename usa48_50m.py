@@ -2,10 +2,14 @@ import os
 from mapnik import *
 
 base_dir = '/Users/monad/Work/data'
+out_dir = 'out'
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
 
 proj4_usa = '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
+
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
 
 m = Map(1200, 900, proj4_usa)
 m.background = Color('#b3e2ee')
@@ -216,7 +220,7 @@ m.zoom(0.96)
 
 # Render to a file
 
-render_to_file(m, 'usa48.png', 'png', 1.0) # 'png256' for 8-bit png
+render_to_file(m, os.path.join(out_dir, 'usa48.png'), 'png', 1.0) # 'png256' for 8-bit png
 
 # Render all states
 
@@ -224,13 +228,13 @@ states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
           'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD',
           'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH',
           'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-          'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WY', 'WV', 'WY']
+          'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
 
 m.layers[3:3] = state_layer(states[0])
 
 for state in states:
     print("Processing: {0}".format(state))
     m.layers[3] = state_layer(state)
-    render_to_file(m, '{0}.png'.format(state), 'png', 1.0)
+    render_to_file(m, os.path.join(out_dir, '{0}.png'.format(state)), 'png', 1.0)
 
 print("done")
