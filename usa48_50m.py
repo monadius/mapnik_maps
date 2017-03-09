@@ -2,9 +2,11 @@ import os
 from mapnik import *
 
 base_dir = '/Users/monad/Work/data'
-out_dir = 'out'
+out_dir = 'out_usa48'
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
+cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
+phys10m_dir = os.path.join(base_dir, '10m_physical')
 
 proj4_usa = '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
 
@@ -12,6 +14,7 @@ if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
 m = Map(1200, 900, proj4_usa)
+#m.background = Color('#b3e2ee80')
 m.background = Color('#b3e2ee')
 
 
@@ -25,13 +28,18 @@ def land_style():
     ps.fill = Color('#f1daa0')
     r.symbols.append(ps)
 
-    name = 'Land Style'
+#    stk = Stroke(Color('#4fadc2'), 5.0)
+#    ls = LineSymbolizer(stk)
+#    r.symbols.append(ls)
+
+    name = 'LandStyle'
     s.rules.append(r)
     m.append_style(name, s)
     return name
 
 def land_layer():
-    ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_land.shp'))
+#    ds = Shapefile(file=os.path.join(phys10m_dir, 'ne_50m_land.shp'))
+    ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_land.shp'))    
     layer = Layer('Land')
     layer.datasource = ds
     layer.styles.append(land_style())
@@ -50,7 +58,7 @@ def usa_style():
     ps.fill = Color('white')
     r.symbols.append(ps)
 
-    name = 'USA Style'
+    name = 'USAStyle'
     s.rules.append(r)
     m.append_style(name, s)
     return name
@@ -69,17 +77,25 @@ def land_boundaries_style():
     s = Style()
     r = Rule()
 
+#    r.filter = Expression("[admin] = 'United States of America'")
+
     stk = Stroke(Color('#4fadc2'), 1.0)
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
-    name = 'Land Boundaries Style'
+#    ps = PolygonSymbolizer()
+#    ps.fill = Color('red')
+#    r.symbols.append(ps)
+
+    name = 'LandBoundariesStyle'
     s.rules.append(r)
     m.append_style(name, s)
     return name
 
 def land_boundaries_layer():
     ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_land.shp'))
+#    ds = Shapefile(file=os.path.join(phys10m_dir, 'ne_10m_land.shp'))    
+#    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp'))
     layer = Layer('Land Boundaries')
     layer.datasource = ds
     layer.styles.append(land_boundaries_style())
@@ -94,7 +110,7 @@ def states_style():
 
     r.filter = Expression("[adm0_name] = 'United States of America'")
 
-    stk = Stroke(Color('black'), 0.5)
+    stk = Stroke(Color('#808080'), 1.0)
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -186,8 +202,11 @@ def state_style(state_name):
     m.append_style(name, s)
     return name
 
-def state_layer(state_name):
-    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp'))
+def state_layer(state_name, flag10=False):
+    if flag10:
+        ds = Shapefile(file = os.path.join(cult10m_dir, 'ne_10m_admin_1_states_provinces_shp.shp'))
+    else:
+        ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp'))
     layer = Layer(state_name)
     layer.datasource = ds
     layer.styles.append(state_style(state_name))
@@ -200,7 +219,7 @@ m.layers.append(land_layer())
 m.layers.append(usa_layer())
 m.layers.append(land_boundaries_layer())
 
-#m.layers.append(state_layer('UT'))
+#m.layers.append(state_layer('AK', flag10=True))
 
 m.layers.append(states_layer())
 m.layers.append(lakes_layer())
@@ -216,13 +235,32 @@ bbox = Box2d(-2607277,-1554066,2391576,1558237)
 #bbox = mapnik.Envelope(mapnik.Coord(-3977504, -2117694), mapnik.Coord(5500000, 5492699))
 #m.zoom_all()
 m.zoom_to_box(bbox)
+#m.pan_and_zoom(610, 480, 0.96)
 m.zoom(0.96)
 
 # Render to a file
 
-render_to_file(m, os.path.join(out_dir, 'usa48.png'), 'png', 1.0) # 'png256' for 8-bit png
+# 'png256' for 8-bit png
+render_to_file(m, os.path.join(out_dir, 'usa48.png'), 'png', 1.0) 
+
+bbox_ne = Box2d(230348, -289948,2331777,1276571)
+m.zoom_to_box(bbox_ne)
+
+render_to_file(m, os.path.join(out_dir, 'usa48_northeast.png'), 'png', 1.0)
+
+bbox_all = Box2d(-6377775,-2106929,2244702,4808764)
+m.zoom_to_box(bbox_all)
+
+render_to_file(m, os.path.join(out_dir, 'usa50.png'), 'png', 1.0)
 
 # Render all states
+
+def render_states(states, prefix, suffix):
+    for state in states:
+        print("Processing: {0}".format(state))
+        m.layers[3] = state_layer(state, flag10=(state == 'AK'))
+        render_to_file(m, os.path.join(out_dir, '{0}{1}{2}.png'.format(prefix, state, suffix)), 'png', 1.0)
+    
 
 states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
           'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD',
@@ -232,9 +270,20 @@ states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
 
 m.layers[3:3] = state_layer(states[0])
 
-for state in states:
-    print("Processing: {0}".format(state))
-    m.layers[3] = state_layer(state)
-    render_to_file(m, os.path.join(out_dir, '{0}.png'.format(state)), 'png', 1.0)
+# Render all states (48 visible)
+
+m.zoom_to_box(bbox)
+m.zoom(0.96)
+render_states(states, "", "")
+
+# Render northeast states
+
+m.zoom_to_box(bbox_ne)
+render_states(['CT', 'DE', 'MA', 'MD', 'NH', 'NJ', 'RI', 'VT'], "ne_", "")
+
+# Render Alaska and Hawaii
+
+m.zoom_to_box(bbox_all)
+render_states(['AK', 'HI'], "all_", "")
 
 print("done")
