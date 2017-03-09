@@ -1,8 +1,10 @@
+# 50m maps of all states (10m Alaska shape)
+
 import os
 from mapnik import *
 
 base_dir = '/Users/monad/Work/data'
-out_dir = 'out_usa48'
+out_dir = 'out_usa50_50m'
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
 cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
