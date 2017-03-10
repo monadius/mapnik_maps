@@ -28,8 +28,17 @@ size_group.add_argument('--sd', action='store_true',
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
 
-parser.add_argument('--out', nargs=1, metavar='DIR',
+parser.add_argument('--out', metavar='DIR',
                     help="the output directory")
+
+parser.add_argument('--color', default='green',
+                    help="polygon fill color (use 'none' for no color)")
+
+parser.add_argument('--line-color', default='black',
+                    help="border line color (use 'none' for no borders)")
+
+parser.add_argument('--scale', type=float, default=1.0,
+                    help="scale for lines")
 
 parser.add_argument('states', nargs='*',
                     help="create images for given states only")
@@ -41,13 +50,25 @@ args = parser.parse_args()
 
 if args.sd:
     width, height = (300, 225)
+    args.scale *= 0.25
 elif args.hd:
     width, height = (600, 450)
+    args.scale *= 0.5
 elif args.xd:
     width, height = (1200, 900)
 else:
     width, height = args.size
 
+if args.color == 'none':
+    args.color = None
+
+if args.line_color == 'none':
+    args.line_color = None
+    
+if args.scale < 0.01 or args.scale > 10:
+    sys.stderr.write("\nBad scale: {0}\n\n".format(args.scale))
+    sys.exit(1)
+    
 if width < 1 or height < 1 or width > 10000 or height > 10000:
     sys.stderr.write("\nBad image size: {0} x {1}\n\n".format(width, height))
     sys.exit(1)
@@ -57,7 +78,6 @@ if not args.out:
 
 if not os.path.exists(args.out):
     os.makedirs(args.out)
-
 
 # Load geo data from a file
 
@@ -115,12 +135,14 @@ def state_style(state_abbrev):
 #    r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_abbrev))
     r.filter = Expression("[STATE_ABBR] = '{0}' and [TYPE] = 'Land'".format(state_abbrev))
 
-    ps = PolygonSymbolizer()
-    ps.fill = Color('red')
-    r.symbols.append(ps)
+    if args.color:
+        ps = PolygonSymbolizer()
+        ps.fill = Color(args.color)
+        r.symbols.append(ps)
 
-    ls = LineSymbolizer(Color('black'), 1.0)
-    r.symbols.append(ls)
+    if args.line_color:
+        ls = LineSymbolizer(Color(args.line_color), 1.0)
+        r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -149,6 +171,9 @@ def create_map(state, width, height):
 
 # The main script
 
+print(args.line_color)
+print(args.color)
+
 data = load_geo_data("50StatesGeoData.txt")
 
 if not args.states:
@@ -165,6 +190,7 @@ for name in args.states:
     out_name = os.path.join(args.out, "{0}.png".format(name))
     out_format = 'png256' if args.png8 else 'png'
 
-    render_to_file(m, out_name, out_format, 1.0)
+    render_to_file(m, out_name, out_format, args.scale)
     
 print("done")
+print("Run 'mogrify -trim +repage *.png' to trim images")
