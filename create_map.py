@@ -10,6 +10,7 @@ cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
 phys10m_dir = os.path.join(base_dir, '10m_physical')
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
+edited50m_dir = os.path.join(base_dir, 'edited50m')
 
 land_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
 land_boundaries_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
@@ -17,10 +18,13 @@ boundaries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.
 countries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
 tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
 lakes_file = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
+disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
 
 #land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+#land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 #boundaries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
+boundaries_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 #countries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 #tiny_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_tiny_countries.shp')
 #lakes_file = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
@@ -61,6 +65,9 @@ parser.add_argument('--color', default='red',
 parser.add_argument('--scale', type=float, default=1.0,
                     help="scale for lines")
 
+parser.add_argument('--test', action='store_true',
+                    help="produce one map only")
+
 parser.add_argument('input_file',
                     help="input JSON data file")
 
@@ -70,7 +77,27 @@ args = parser.parse_args()
 
 with open(args.input_file) as f:
     data = json.load(f)
-    
+
+class CountryInfo:
+    def __init__(self, data):
+        self.disputed = None
+        self.one_color = False
+        if isinstance(data, unicode):
+            self.name = data.encode()
+        elif isinstance(data, str):
+            self.name = data
+        else:
+            assert(isinstance(data, dict))
+            self.name = data['name'].encode()
+            if 'disputed' in data:
+                self.disputed = data['disputed'].encode()
+            if 'one-color' in data:
+                self.one_color = data['one-color']
+
+countries = []
+for country in data['countries']:
+    countries.append(CountryInfo(country))
+                
 # Validate data
 
 if 'xd-size' not in data:
@@ -242,6 +269,28 @@ def country_layer(name):
     layer.datasource = ds
     return layer
 
+def disputed_style(name, one_color=False):
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[name] = '{0}'".format(name))
+
+    ps = PolygonSymbolizer()
+    if one_color and args.color:
+        ps.fill = Color(args.color)
+    else:
+        ps.fill = Color('#f76d50')
+    r.symbols.append(ps)
+
+    s.rules.append(r)
+    return s
+
+def disputed_layer(name):
+    ds = Shapefile(file=disputed_file)
+    layer = Layer("Disputed " + name)
+    layer.datasource = ds
+    return layer
+
 # Base map
 
 def base_map(data, width, height):
@@ -260,16 +309,25 @@ def base_map(data, width, height):
 
 # A map with a country
 
-def set_country(m, name):
-    style = country_style(name)
-    layer = country_layer(name)
-    style_name = 'Style ' + name
+def set_country(m, info):
+    style = country_style(info.name)
+    layer = country_layer(info.name)
+    style_name = 'Style ' + info.name
     m.append_style(style_name, style)
     layer.styles.append(style_name)
-    if len(m.layers) == 4:
-        m.layers[1:1] = layer
-    else:
-        m.layers[1] = layer
+
+    while len(m.layers) > 4:
+        del m.layers[1]
+    
+    m.layers[1:1] = layer
+
+    if info.disputed:
+        style = disputed_style(info.disputed, one_color=info.one_color)
+        layer = disputed_layer(info.disputed)
+        style_name = 'Disputed Style ' + info.disputed
+        m.append_style(style_name, style)
+        layer.styles.append(style_name)
+        m.layers[2:2] = layer
 
 # The main script
 
@@ -280,11 +338,14 @@ out_format = 'png256' if args.png8 else 'png'
 m = base_map(data, width, height)
 render_to_file(m, os.path.join(args.out, 'a.png'), out_format, args.scale)
 
-for name in data['countries']:
-    name = name.encode()
-    print("Processing: {0}".format(name))
-    set_country(m, name)
-    out_name = os.path.join(args.out, "{0}.png".format(name))
+if args.test:
+    print("done (test)")
+    exit(0)
+
+for country in countries:
+    print("Processing: {0}".format(country.name))
+    set_country(m, country)
+    out_name = os.path.join(args.out, "{0}.png".format(country.name))
     render_to_file(m, out_name, out_format, args.scale)
 
 print("done")
