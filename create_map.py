@@ -20,7 +20,7 @@ tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
 lakes_file = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
 disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
 
-#land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+land_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 #land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 #boundaries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
@@ -42,9 +42,9 @@ parser = argparse.ArgumentParser(description="Creates a map from a data file")
 size_group = parser.add_mutually_exclusive_group()
 size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
                         type=int, default=None,
-                        help="the size of an output image")
+                        help="the size of output images")
 size_group.add_argument('--xd', action='store_true',
-                        help="xd size (should be set in an input data file)")
+                        help="xd size (should be set in the input data file)")
 size_group.add_argument('--hd', action='store_true',
                         help="0.5 * (xd size)")
 size_group.add_argument('--sd', action='store_true',
@@ -65,6 +65,9 @@ parser.add_argument('--color', default='red',
 parser.add_argument('--scale', type=float, default=1.0,
                     help="scale for lines")
 
+parser.add_argument('--no-markers', action='store_true',
+                    help="do not draw markers")
+
 parser.add_argument('--test', action='store_true',
                     help="produce one map only")
 
@@ -82,6 +85,7 @@ class CountryInfo:
     def __init__(self, data):
         self.disputed = None
         self.one_color = False
+        self.marker_size = None
         if isinstance(data, unicode):
             self.name = data.encode()
         elif isinstance(data, str):
@@ -93,6 +97,8 @@ class CountryInfo:
                 self.disputed = data['disputed'].encode()
             if 'one-color' in data:
                 self.one_color = data['one-color']
+            if 'marker-size' in data:
+                self.marker_size = tuple(data['marker-size'])
 
 countries = []
 for country in data['countries']:
@@ -291,6 +297,29 @@ def disputed_layer(name):
     layer.datasource = ds
     return layer
 
+def tiny_style(name, size):
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[name] = '{0}' or [sovereignt] = '{0}'".format(name))
+
+    ms = MarkersSymbolizer()
+    ms.fill = Color('red')
+    ms.opacity = 0.5
+    ms.stroke = Stroke(Color('black'), 0.0)
+    ms.width = Expression('{0}'.format(size[0]))
+    ms.height = Expression('{0}'.format(size[1]))
+    r.symbols.append(ms)
+
+    s.rules.append(r)
+    return s
+
+def tiny_layer(name):
+    ds = Shapefile(file=tiny_file)
+    layer = Layer("Tiny " + name)
+    layer.datasource = ds
+    return layer
+
 # Base map
 
 def base_map(data, width, height):
@@ -329,6 +358,14 @@ def set_country(m, info):
         layer.styles.append(style_name)
         m.layers[2:2] = layer
 
+    if info.marker_size and not args.no_markers:
+        style = tiny_style(info.name, info.marker_size)
+        layer = tiny_layer(info.name)
+        style_name = 'Tiny Style ' + info.name
+        m.append_style(style_name, style)
+        layer.styles.append(style_name)
+        m.layers[2:2] = layer
+
 # The main script
 
 from mapnik import *
@@ -344,6 +381,8 @@ if args.test:
 
 for country in countries:
     print("Processing: {0}".format(country.name))
+#    if country.name != 'Mauritius':
+#        continue
     set_country(m, country)
     out_name = os.path.join(args.out, "{0}.png".format(country.name))
     render_to_file(m, out_name, out_format, args.scale)
