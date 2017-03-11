@@ -171,9 +171,6 @@ def create_map(state, width, height):
 
 # The main script
 
-print(args.line_color)
-print(args.color)
-
 data = load_geo_data("50StatesGeoData.txt")
 
 if not args.states:
