@@ -9,6 +9,8 @@ base_dir = '/Users/monad/Work/data'
 #data_file = os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp')
 data_file = os.path.join(base_dir, 'statesp010g.shp_nt00938', 'statesp010g.shp')
 
+xd_width, xd_height = 1200, 900
+
 def report_error(msg):
     sys.stderr.write("**ERROR**: {0}\n".format(msg))
 
@@ -16,14 +18,14 @@ parser = argparse.ArgumentParser(description="Creates images of contours of all 
 
 size_group = parser.add_mutually_exclusive_group()
 size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
-                        type=int, default=(1200, 900),
+                        type=int, default=(xd_width, xd_height),
                         help="the size of output images")
 size_group.add_argument('--xd', action='store_true',
-                        help="equivalent to --size 1200 900")
+                        help="equivalent to --size {0} {1}".format(xd_width, xd_height))
 size_group.add_argument('--hd', action='store_true',
-                        help="equivalent to --size 600 450")
+                        help="0.5 * (xd size)")
 size_group.add_argument('--sd', action='store_true',
-                        help="equivalent to --size 300 225")
+                        help="0.25 * (xd size)")
 
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
@@ -49,15 +51,17 @@ parser.add_argument('states', nargs='*',
 args = parser.parse_args()
 
 if args.sd:
-    width, height = (300, 225)
+    width, height = int(xd_width * 0.25), int(xd_height * 0.25)
     args.scale *= 0.25
 elif args.hd:
-    width, height = (600, 450)
+    width, height = int(xd_width * 0.5), int(xd_height * 0.5)
     args.scale *= 0.5
 elif args.xd:
-    width, height = (1200, 900)
-else:
+    width, height = xd_width, xd_height
+elif args.size:
     width, height = args.size
+else:
+    width, height = xd_width, xd_height
 
 if args.color == 'none':
     args.color = None
@@ -106,7 +110,7 @@ def load_geo_data(fname):
             if len(line) != 2:
                 report_error("Bad line (a state abbreviation is expected): {0}".format(line))
                 continue
-            name = line.upper()
+            name = line.lower()
             if name in result:
                 report_error("Repeated name: {0}".format(line))
             state = PROJ
@@ -133,7 +137,7 @@ def state_style(state_abbrev):
     r = Rule()
 
 #    r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_abbrev))
-    r.filter = Expression("[STATE_ABBR] = '{0}' and [TYPE] = 'Land'".format(state_abbrev))
+    r.filter = Expression("[STATE_ABBR] = '{0}' and [TYPE] = 'Land'".format(state_abbrev.upper()))
 
     if args.color:
         ps = PolygonSymbolizer()
@@ -177,7 +181,7 @@ if not args.states:
     args.states = data.keys()
 
 for name in args.states:
-    name = name.upper()
+    name = name.lower()
     print("Processing: {0}".format(name))
     if name not in data:
         report_error("Bad state abbreviation: {0}".format(name))
