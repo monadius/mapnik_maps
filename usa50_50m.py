@@ -7,11 +7,33 @@ from mapnik import *
 
 # Global variables
 
+xd_width, xd_height = 1200, 900
+
 base_dir = '/Users/monad/Work/data'
-cult50m_dir = os.path.join(base_dir, '50m_cultural')
-phys50m_dir = os.path.join(base_dir, '50m_physical')
 cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
 phys10m_dir = os.path.join(base_dir, '10m_physical')
+cult50m_dir = os.path.join(base_dir, '50m_cultural')
+phys50m_dir = os.path.join(base_dir, '50m_physical')
+
+land_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+land_boundaries_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+countries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
+state_boundaries_file = os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_lines.shp')
+lakes_file = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
+country_boundaries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
+
+states10m_file = os.path.join(cult10m_dir, 'ne_10m_admin_1_states_provinces_shp.shp')
+states50m_file =os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp')
+
+#land_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
+#land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
+#land_boundaries_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
+#boundaries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
+#boundaries_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
+#countries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+#lakes_file = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
+
+lakes_size = 3
 
 proj4_usa = '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
 coords_usa = (-2607277,-1554066,2391576,1558237)
@@ -26,14 +48,14 @@ parser = argparse.ArgumentParser(description="Creates maps for all 50 states")
 
 size_group = parser.add_mutually_exclusive_group()
 size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
-                        type=int, default=(1200, 900),
+                        type=int, default=(xd_width, xd_height),
                         help="the size of output images")
 size_group.add_argument('--xd', action='store_true',
-                        help="equivalent to --size 1200 900")
+                        help="equivalent to --size {0} {1}".format(xd_width, xd_height))
 size_group.add_argument('--hd', action='store_true',
-                        help="equivalent to --size 600 450")
+                        help="0.5 * (xd size)")
 size_group.add_argument('--sd', action='store_true',
-                        help="equivalent to --size 300 225")
+                        help="0.25 * (xd size)")
 
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
@@ -59,15 +81,17 @@ parser.add_argument('states', nargs='*',
 args = parser.parse_args()
 
 if args.sd:
-    width, height = (300, 225)
+    width, height = int(xd_width * 0.25), int(xd_height * 0.25)
     args.scale *= 0.25
 elif args.hd:
-    width, height = (600, 450)
+    width, height = int(xd_width * 0.5), int(xd_height * 0.5)
     args.scale *= 0.5
 elif args.xd:
-    width, height = (1200, 900)
-else:
+    width, height = xd_width, xd_height
+elif args.size:
     width, height = args.size
+else:
+    width, height = xd_width, xd_height
 
 if args.color == 'none':
     args.color = None
@@ -118,7 +142,7 @@ def land_style():
 
 def land_layer():
 #    ds = Shapefile(file=os.path.join(phys10m_dir, 'ne_50m_land.shp'))
-    ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_land.shp'))    
+    ds = Shapefile(file=land_file)    
     layer = Layer('Land')
     layer.datasource = ds
     layer.styles.append(land_style())
@@ -143,7 +167,7 @@ def usa_style():
     return name
 
 def usa_layer():
-    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp'))
+    ds = Shapefile(file=countries_file)
     layer = Layer('USA')
     layer.datasource = ds
     layer.styles.append(usa_style())
@@ -172,9 +196,7 @@ def land_boundaries_style():
     return name
 
 def land_boundaries_layer():
-    ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_land.shp'))
-#    ds = Shapefile(file=os.path.join(phys10m_dir, 'ne_10m_land.shp'))    
-#    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp'))
+    ds = Shapefile(file=land_boundaries_file)
     layer = Layer('Land Boundaries')
     layer.datasource = ds
     layer.styles.append(land_boundaries_style())
@@ -199,7 +221,7 @@ def states_style():
     return name
 
 def states_layer():
-    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_lines.shp'))
+    ds = Shapefile(file=state_boundaries_file)
     layer = Layer('States')
     layer.datasource = ds
     layer.styles.append(states_style())
@@ -212,7 +234,7 @@ def lakes_style():
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[scalerank] <= 3")
+    r.filter = Expression("[scalerank] <= {0}".format(lakes_size))
 
     ps = PolygonSymbolizer()
     ps.fill = Color('#b3e2ee')
@@ -228,7 +250,7 @@ def lakes_style():
     return name
 
 def lakes_layer():
-    ds = Shapefile(file=os.path.join(phys50m_dir, 'ne_50m_lakes.shp'))
+    ds = Shapefile(file=lakes_file)
     layer = Layer('Lakes')
     layer.datasource = ds
     layer.styles.append(lakes_style())
@@ -256,7 +278,7 @@ def admin_0_boundaries_style():
     return name
 
 def admin_0_boundaries_layer():
-    ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp'))
+    ds = Shapefile(file=country_boundaries_file)
     layer = Layer('Admin 0 Boundaries')
     layer.datasource = ds
     layer.styles.append(admin_0_boundaries_style())
@@ -284,9 +306,9 @@ def state_style(state_name):
 
 def state_layer(state_name, flag10=False):
     if flag10:
-        ds = Shapefile(file = os.path.join(cult10m_dir, 'ne_10m_admin_1_states_provinces_shp.shp'))
+        ds = Shapefile(file=states10m_file)
     else:
-        ds = Shapefile(file=os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp'))
+        ds = Shapefile(file=states50m_file)
     layer = Layer(state_name)
     layer.datasource = ds
     layer.styles.append(state_style(state_name))

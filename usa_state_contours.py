@@ -4,12 +4,12 @@ import argparse
 
 # Global variables
 
+xd_width, xd_height = 1200, 900
+
 base_dir = '/Users/monad/Work/data'
 #cult50m_dir = os.path.join(base_dir, '50m_cultural')
 #data_file = os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp')
 data_file = os.path.join(base_dir, 'statesp010g.shp_nt00938', 'statesp010g.shp')
-
-xd_width, xd_height = 1200, 900
 
 def report_error(msg):
     sys.stderr.write("**ERROR**: {0}\n".format(msg))
