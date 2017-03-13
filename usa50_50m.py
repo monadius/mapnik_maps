@@ -1,21 +1,98 @@
 # 50m maps of all states (10m Alaska shape)
 
 import os
+import sys
+import argparse
 from mapnik import *
 
+# Global variables
+
 base_dir = '/Users/monad/Work/data'
-out_dir = 'out_usa50_50m'
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
 cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
 phys10m_dir = os.path.join(base_dir, '10m_physical')
 
 proj4_usa = '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
+coords_usa = (-2607277,-1554066,2391576,1558237)
+zoom_usa = 0.96
+coords_ne = (230348, -289948,2331777,1276571)
+coords_all = (-6377775,-2106929,2244702,4808764)
 
-if not os.path.exists(out_dir):
-    os.makedirs(out_dir)
+def report_error(msg):
+    sys.stderr.write("**ERROR**: {0}\n".format(msg))
 
-m = Map(1200, 900, proj4_usa)
+parser = argparse.ArgumentParser(description="Creates maps for all 50 states")
+
+size_group = parser.add_mutually_exclusive_group()
+size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
+                        type=int, default=(1200, 900),
+                        help="the size of output images")
+size_group.add_argument('--xd', action='store_true',
+                        help="equivalent to --size 1200 900")
+size_group.add_argument('--hd', action='store_true',
+                        help="equivalent to --size 600 450")
+size_group.add_argument('--sd', action='store_true',
+                        help="equivalent to --size 300 225")
+
+parser.add_argument('--png8', action='store_true',
+                    help="8-bit PNG images")
+
+parser.add_argument('--out', dest='out_dir', metavar='DIR',
+                    help="the output directory")
+
+parser.add_argument('--color', default='red',
+                    help="polygon fill color (use 'none' for no color)")
+
+#parser.add_argument('--line-color', default='black',
+#                    help="border line color (use 'none' for no borders)")
+
+parser.add_argument('--scale', type=float, default=1.0,
+                    help="scale for lines")
+
+parser.add_argument('states', nargs='*',
+                    help="create images for given states only")
+
+
+# Parse and validate arguments
+
+args = parser.parse_args()
+
+if args.sd:
+    width, height = (300, 225)
+    args.scale *= 0.25
+elif args.hd:
+    width, height = (600, 450)
+    args.scale *= 0.5
+elif args.xd:
+    width, height = (1200, 900)
+else:
+    width, height = args.size
+
+if args.color == 'none':
+    args.color = None
+
+#if args.line_color == 'none':
+#    args.line_color = None
+    
+if args.scale < 0.01 or args.scale > 10:
+    report_error("Bad scale: {0}".format(args.scale))
+    sys.exit(1)
+    
+if width < 1 or height < 1 or width > 10000 or height > 10000:
+    report_error("Bad image size: {0} x {1}".format(width, height))
+    sys.exit(1)
+    
+if not args.out_dir:
+    args.out_dir = "out_maps_of_states_{0}_{1}".format(width, height)
+
+if not os.path.exists(args.out_dir):
+    os.makedirs(args.out_dir)
+
+out_format = 'png256' if args.png8 else 'png'
+
+
+m = Map(width, height, proj4_usa)
 #m.background = Color('#b3e2ee80')
 m.background = Color('#b3e2ee')
 
@@ -196,9 +273,10 @@ def state_style(state_name):
 
     r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_name))
 
-    ps = PolygonSymbolizer()
-    ps.fill = Color('red')
-    r.symbols.append(ps)
+    if args.color:
+        ps = PolygonSymbolizer()
+        ps.fill = Color(args.color)
+        r.symbols.append(ps)
 
     s.rules.append(r)
     m.append_style(name, s)
@@ -231,29 +309,27 @@ m.layers.append(admin_0_boundaries_layer())
 
 # Zoom the map
 
-#bbox = Envelope(Coord(-3977504, -2117694), Coord(5506722, 5492699))
-#bbox = Box2d(-2532669,-1898222,2316968,1902394)
-bbox = Box2d(-2607277,-1554066,2391576,1558237)
-#bbox = mapnik.Envelope(mapnik.Coord(-3977504, -2117694), mapnik.Coord(5500000, 5492699))
-#m.zoom_all()
+bbox = Box2d(*coords_usa)
 m.zoom_to_box(bbox)
 #m.pan_and_zoom(610, 480, 0.96)
-m.zoom(0.96)
+m.zoom(zoom_usa)
 
 # Render to a file
 
-# 'png256' for 8-bit png
-render_to_file(m, os.path.join(out_dir, 'usa48.png'), 'png', 1.0) 
+render_to_file(m, os.path.join(args.out_dir, 'usa48.png'),
+               out_format, args.scale) 
 
-bbox_ne = Box2d(230348, -289948,2331777,1276571)
+bbox_ne = Box2d(*coords_ne)
 m.zoom_to_box(bbox_ne)
 
-render_to_file(m, os.path.join(out_dir, 'usa48_northeast.png'), 'png', 1.0)
+render_to_file(m, os.path.join(args.out_dir, 'usa48_northeast.png'),
+               out_format, args.scale)
 
-bbox_all = Box2d(-6377775,-2106929,2244702,4808764)
+bbox_all = Box2d(*coords_all)
 m.zoom_to_box(bbox_all)
 
-render_to_file(m, os.path.join(out_dir, 'usa50.png'), 'png', 1.0)
+render_to_file(m, os.path.join(args.out_dir, 'usa50.png'),
+               out_format, args.scale)
 
 # Render all states
 
@@ -261,7 +337,9 @@ def render_states(states, prefix, suffix):
     for state in states:
         print("Processing: {0}".format(state))
         m.layers[3] = state_layer(state, flag10=(state == 'AK'))
-        render_to_file(m, os.path.join(out_dir, '{0}{1}{2}.png'.format(prefix, state, suffix)), 'png', 1.0)
+        render_to_file(m, os.path.join(args.out_dir,
+                                       '{0}{1}{2}.png'.format(prefix, state, suffix)),
+                       out_format, args.scale)
     
 
 states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -270,22 +348,36 @@ states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
           'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
           'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
 
+ne_states = ['CT', 'DE', 'MA', 'MD', 'NH', 'NJ', 'RI', 'VT']
+
+far_states = ['AK', 'HI']
+
 m.layers[3:3] = state_layer(states[0])
+
+if args.states:
+    test = lambda s: s in args.states
+    states = filter(test, states)
+    ne_states = filter(test, ne_states)
+    far_states = filter(test, far_states)
 
 # Render all states (48 visible)
 
 m.zoom_to_box(bbox)
-m.zoom(0.96)
+m.zoom(zoom_usa)
 render_states(states, "", "")
 
-# Render northeast states
+# Render northeastern states
+
+print("\nRendering northeastern states")
 
 m.zoom_to_box(bbox_ne)
-render_states(['CT', 'DE', 'MA', 'MD', 'NH', 'NJ', 'RI', 'VT'], "ne_", "")
+render_states(ne_states, "ne_", "")
 
 # Render Alaska and Hawaii
 
+print("\nRendering Alaska and Hawaii")
+
 m.zoom_to_box(bbox_all)
-render_states(['AK', 'HI'], "all_", "")
+render_states(far_states, "all_", "")
 
 print("done")

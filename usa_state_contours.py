@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description="Creates images of contours of all 
 size_group = parser.add_mutually_exclusive_group()
 size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
                         type=int, default=(1200, 900),
-                        help="the size of an output image")
+                        help="the size of output images")
 size_group.add_argument('--xd', action='store_true',
                         help="equivalent to --size 1200 900")
 size_group.add_argument('--hd', action='store_true',
