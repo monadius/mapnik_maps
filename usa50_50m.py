@@ -114,6 +114,8 @@ if not os.path.exists(args.out_dir):
 
 out_format = 'png256' if args.png8 else 'png'
 
+print("Size: {0} x {1}, scale: {2}".format(width, height, args.scale))
+
 
 # Styles and layers
 
@@ -176,7 +178,7 @@ def land_boundaries_style():
 
 #    r.filter = Expression("[admin] = 'United States of America'")
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
+    stk = Stroke(Color('#4fadc2'), 1.5)
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -201,7 +203,7 @@ def state_boundaries_style():
 
     r.filter = Expression("[adm0_name] = 'United States of America'")
 
-    stk = Stroke(Color('#808080'), 1.0)
+    stk = Stroke(Color('#808080'), 1.5)
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -226,7 +228,7 @@ def lakes_style():
     ps.fill = Color('#b3e2ee')
     r.symbols.append(ps)
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
+    stk = Stroke(Color('#4fadc2'), 1.5)
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -250,7 +252,7 @@ def country_boundaries_style():
     stk.add_dash(2, 2)
     stk.add_dash(2, 2)
     stk.color = Color('black')
-    stk.width = 2.0
+    stk.width = 3.0
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -319,7 +321,7 @@ def render_states(m, states, prefix="", suffix=""):
         layer.styles.append(style_name)
         m.layers[3:3] = layer
 
-        out_name = '{0}{1}{2}.png'.format(prefix, state, suffix)
+        out_name = '{0}{1}{2}.png'.format(prefix, state.lower(), suffix)
         render_to_file(m, os.path.join(args.out_dir, out_name),
                        out_format, args.scale)
 
