@@ -59,7 +59,10 @@ size_group.add_argument('--sd', action='store_true',
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
 
-parser.add_argument('--out', dest='out_dir', metavar='DIR',
+parser.add_argument('--suffix', default="-map",
+                    help="the suffix for output image names")
+
+parser.add_argument('--out', dest="out_dir", metavar='DIR',
                     help="the output directory")
 
 parser.add_argument('--color', default='red',
@@ -361,14 +364,14 @@ if args.states:
     far_states = filter(test, far_states)
 
 # Render all states (48 visible)
-render_states(map_48, states)
+render_states(map_48, states, suffix=args.suffix)
 
 # Render northeastern states
 print("\nRendering northeastern states")
-render_states(map_ne, ne_states, prefix="ne_")
+render_states(map_ne, ne_states, prefix="ne_", suffix=args.suffix)
 
 # Render Alaska and Hawaii
 print("\nRendering Alaska and Hawaii")
-render_states(map_all, far_states, prefix="all_")
+render_states(map_all, far_states, prefix="all_", suffix=args.suffix)
 
 print("done")
