@@ -9,7 +9,6 @@ xd_width, xd_height = 1200, 900
 base_dir = '/Users/monad/Work/data'
 #cult50m_dir = os.path.join(base_dir, '50m_cultural')
 #data_file = os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.shp')
-data_file = os.path.join(base_dir, 'statesp010g.shp_nt00938', 'statesp010g.shp')
 
 def report_error(msg):
     sys.stderr.write("**ERROR**: {0}\n".format(msg))
@@ -27,8 +26,15 @@ size_group.add_argument('--hd', action='store_true',
 size_group.add_argument('--sd', action='store_true',
                         help="0.25 * (xd size)")
 
+data_group = parser.add_mutually_exclusive_group()
+data_group.add_argument('--cult50m', action='store_true',
+                        help="use data from the cult50m directory")
+data_group.add_argument('--cult10m', action='store_true',
+                        help="use data from the cult10m directory")
+
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
+
 
 parser.add_argument('--out', metavar='DIR',
                     help="the output directory")
@@ -50,6 +56,17 @@ parser.add_argument('states', nargs='*',
 
 args = parser.parse_args()
 
+if args.cult10m:
+    data_file = os.path.join(base_dir, '10m_cultural', '10m_cultural', 'ne_10m_admin_1_states_provinces_lakes_shp.shp')
+    args.filter = "[iso_3166_2] = 'US-{0}'"
+elif args.cult50m:
+    data_file = os.path.join(base_dir, '50m_cultural', 'ne_50m_admin_1_states_provinces_lakes_shp.shp')
+    args.filter = "[iso_3166_2] = 'US-{0}'"
+else:
+    data_file = os.path.join(base_dir, 'statesp010g.shp_nt00938', 'statesp010g.shp')
+    args.filter = "[STATE_ABBR] = '{0}' and [TYPE] = 'Land'"
+
+    
 if args.sd:
     width, height = int(xd_width * 0.25), int(xd_height * 0.25)
     args.scale *= 0.25
@@ -136,8 +153,7 @@ def state_style(state_abbrev):
     s = Style()
     r = Rule()
 
-#    r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_abbrev))
-    r.filter = Expression("[STATE_ABBR] = '{0}' and [TYPE] = 'Land'".format(state_abbrev.upper()))
+    r.filter = Expression(args.filter.format(state_abbrev.upper()))
 
     if args.color:
         ps = PolygonSymbolizer()
