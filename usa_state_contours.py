@@ -39,7 +39,7 @@ parser.add_argument('--png8', action='store_true',
 parser.add_argument('--out', metavar='DIR',
                     help="the output directory")
 
-parser.add_argument('--color', default='green',
+parser.add_argument('--color', default='#26c026',
                     help="polygon fill color (use 'none' for no color)")
 
 parser.add_argument('--line-color', default='black',
