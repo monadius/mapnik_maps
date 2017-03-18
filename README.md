@@ -6,7 +6,7 @@ Experiments with mapnik2.
 
 - [Natural Earth Data](http://www.naturalearthdata.com/)
 
-- [https://nationalmap.gov/small_scale/atlasftp.html]
+- [The National Map Small Scale](https://nationalmap.gov/small_scale/atlasftp.html)
 
 - [QGIS](http://www.qgis.org/en/site/)
 
