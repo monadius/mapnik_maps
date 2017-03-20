@@ -1,0 +1,8 @@
+{
+    "name": "EastAsia",
+    "proj": "+proj=mill +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +R_A +datum=WGS84 +units=m +no_defs",
+    "bbox": [7681040,-1896220,18855995,6960155],
+    "xd-size": [1200, 900],
+    "countries": [
+    ]
+}

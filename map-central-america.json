@@ -1,0 +1,8 @@
+{
+    "name": "CentralAmerica",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [-99,1,-58,34],
+    "xd-size": [1200, 900],
+    "countries": [
+    ]
+}
