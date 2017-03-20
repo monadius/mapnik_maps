@@ -4,5 +4,17 @@
     "bbox": [-5540036,-3022167,5300309,5569024],
     "xd-size": [1200, 900],
     "countries": [
+	"Argentina",
+	"Bolivia",
+	"Brazil",
+	"Chile",
+	"Colombia",
+	"Ecuador",
+	"Guyana",
+	"Paraguay",
+	"Peru",
+	"Suriname",
+	"Uruguay",
+	"Venezuela"
     ]
 }

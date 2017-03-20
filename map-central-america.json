@@ -4,5 +4,25 @@
     "bbox": [-99,1,-58,34],
     "xd-size": [1200, 900],
     "countries": [
+	{"name": "Antigua and Barbuda", "marker-size": [30, 30]},
+	"The Bahamas",
+	{"name": "Barbados", "marker-size": [30, 30]},
+	"Belize",
+	"Costa Rica",
+	"Cuba",
+	{"name": "Dominica", "marker-size": [30, 30]},
+	"Dominican Republic",
+	{"name": "Grenada", "marker-size": [30, 30]},
+	{"name": "Saint Vincent and the Grenadines", "marker-size": [30, 30]},
+	"Guatemala",
+	"Haiti",
+	"Honduras",
+	"Jamaica",
+	{"name": "Saint Lucia", "marker-size": [30, 30]},
+	{"name": "Saint Kitts and Nevis", "marker-size": [30, 30]},
+	"Nicaragua",
+	"Panama",
+	"El Salvador",
+	"Trinidad and Tobago"
     ]
 }
