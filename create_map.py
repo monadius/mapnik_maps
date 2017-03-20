@@ -79,6 +79,9 @@ parser.add_argument('--test', action='store_true',
 parser.add_argument('input_file',
                     help="input JSON data file")
 
+parser.add_argument('countries', nargs='*',
+                    help="a list of countries (if empty then maps for all countries in the input data file are created)")
+
 # Parse arguments and load the input file
 
 args = parser.parse_args()
@@ -399,12 +402,21 @@ if args.test:
     print("done (test)")
     exit(0)
 
+def check_name(name):
+    if not args.countries:
+        return True
+    for x in args.countries:
+        if name.startswith(x):
+            return True
+    return False
+
 for country in countries:
-    print("Processing: {0}".format(country.name))
-#    if country.name != 'Mauritius':
-#        continue
+    name = country.name
+    if not check_name(name):
+        continue
+    print("Processing: {0}".format(name))
     set_country(m, country)
-    out_name = os.path.join(args.out, "{0}.png".format(country.name))
+    out_name = os.path.join(args.out, "{0}.png".format(name))
     render_to_file(m, out_name, out_format, args.scale)
 
 print("done")
