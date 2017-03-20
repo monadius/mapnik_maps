@@ -12,23 +12,22 @@ cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
 edited50m_dir = os.path.join(base_dir, 'edited50m')
 
-land_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
-land_boundaries_file = os.path.join(phys50m_dir, 'ne_50m_land.shp')
-boundaries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
-countries_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
-tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
-lakes_file = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
+land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+#boundaries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
+boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
+countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
+lakes_file_50m = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
+
+#land_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
+land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
+land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
+boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
+countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
+
 disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
-
-land_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
-#land_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
-land_boundaries_file = os.path.join(phys10m_dir, 'ne_10m_land.shp')
-#boundaries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
-boundaries_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
-#countries_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
-#tiny_file = os.path.join(cult10m_dir, 'ne_10m_admin_0_tiny_countries.shp')
-#lakes_file = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
-
+tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
 
 lakes_size = 3
 
@@ -49,6 +48,12 @@ size_group.add_argument('--hd', action='store_true',
                         help="0.5 * (xd size)")
 size_group.add_argument('--sd', action='store_true',
                         help="0.25 * (xd size)")
+
+data_group = parser.add_mutually_exclusive_group()
+data_group.add_argument('--50m', dest='use50m', action='store_true',
+                        help="use 50m data")
+data_group.add_argument('--10m', dest='use10m', action='store_true',
+                        help="use 10m data (default)")
 
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
@@ -115,6 +120,19 @@ if ('proj' not in data) or ('bbox' not in data):
     exit(2)
 
 xd_width, xd_height = data['xd-size']
+
+if args.use50m:
+    land_file = land_file_50m
+    land_boundaries_file = land_boundaries_file_50m
+    boundaries_file = boundaries_file_50m
+    countries_file = countries_file_50m
+    lakes_file = lakes_file_50m
+else:
+    land_file = land_file_10m
+    land_boundaries_file = land_boundaries_file_10m
+    boundaries_file = boundaries_file_10m
+    countries_file = countries_file_10m
+    lakes_file = lakes_file_10m
     
 # Validate arguments
 
