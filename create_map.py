@@ -13,7 +13,9 @@ phys50m_dir = os.path.join(base_dir, '50m_physical')
 edited50m_dir = os.path.join(base_dir, 'edited50m')
 
 land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
-land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+#land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_coastline.shp')
+#land_boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_coastline_edited.shp')
 #boundaries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
@@ -76,6 +78,9 @@ parser.add_argument('--scale', type=float, default=1.0,
 parser.add_argument('--no-markers', action='store_true',
                     help="do not draw markers")
 
+parser.add_argument('--top', action='store_true',
+                    help="move the country layer above the land boundary layer")
+
 parser.add_argument('--test', action='store_true',
                     help="produce one map only")
 
@@ -98,6 +103,7 @@ class CountryInfo:
         self.one_color = False
         self.marker_size = None
         self.marker_offset = None
+        self.out_name = None
         if isinstance(data, unicode):
             self.name = data.encode()
         elif isinstance(data, str):
@@ -105,6 +111,8 @@ class CountryInfo:
         else:
             assert(isinstance(data, dict))
             self.name = data['name'].encode()
+            if 'out' in data:
+                self.out_name = data['out'].encode()
             if 'disputed' in data:
                 self.disputed = data['disputed'].encode()
             if 'one-color' in data:
@@ -113,6 +121,8 @@ class CountryInfo:
                 self.marker_size = tuple(data['marker-size'])
             if 'marker-offset' in data:
                 self.marker_offset = tuple(data['marker-offset'])
+        if not self.out_name:
+            self.out_name = self.name
 
 countries = []
 for country in data['countries']:
@@ -334,12 +344,12 @@ def tiny_style(name, size=(10,10), offset=None):
 
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
-    ms.opacity = 0.5
+    ms.opacity = 0.4
     ms.stroke = Stroke(Color('black'), 0.0)
-    ms.width = Expression('{0}'.format(size[0]))
-    ms.height = Expression('{0}'.format(size[1]))
+    ms.width = Expression('{0}'.format(size[0] * args.scale))
+    ms.height = Expression('{0}'.format(size[1] * args.scale))
     if offset:
-        ms.transform = 'translate({0}, {1})'.format(offset[0], offset[1])
+        ms.transform = 'translate({0}, {1})'.format(offset[0] * args.scale, offset[1] * args.scale)
     r.symbols.append(ms)
 
     s.rules.append(r)
@@ -360,10 +370,10 @@ def base_map(data, width, height):
                          land_style(), 'Land Style')
     add_layer_with_style(m, boundaries_layer(),
                          boundaries_style(), 'Boundaries Style')
-    add_layer_with_style(m, lakes_layer(),
-                         lakes_style(), 'Lakes Style')
     add_layer_with_style(m, land_boundaries_layer(),
                          land_boundaries_style(), 'Land Boundaries Style')
+    add_layer_with_style(m, lakes_layer(),
+                         lakes_style(), 'Lakes Style')
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
@@ -376,10 +386,12 @@ def set_country(m, info):
     m.append_style(style_name, style)
     layer.styles.append(style_name)
 
+    pos = 3 if args.top else 1
+
     while len(m.layers) > 4:
-        del m.layers[1]
+        del m.layers[pos]
     
-    m.layers[1:1] = layer
+    m.layers[pos:pos] = layer
 
     if info.disputed:
         style = disputed_style(info.disputed, one_color=info.one_color)
@@ -387,7 +399,7 @@ def set_country(m, info):
         style_name = 'Disputed Style ' + info.disputed
         m.append_style(style_name, style)
         layer.styles.append(style_name)
-        m.layers[2:2] = layer
+        m.layers[pos+1:pos+1] = layer
 
     if info.marker_size and not args.no_markers:
         style = tiny_style(info.name, size=info.marker_size, offset=info.marker_offset)
@@ -395,7 +407,7 @@ def set_country(m, info):
         style_name = 'Tiny Style ' + info.name
         m.append_style(style_name, style)
         layer.styles.append(style_name)
-        m.layers[2:2] = layer
+        m.layers[pos+1:pos+1] = layer
 
 # The main script
 
@@ -424,7 +436,7 @@ for country in countries:
         continue
     print("Processing: {0}".format(name))
     set_country(m, country)
-    out_name = os.path.join(args.out, "{0}.png".format(name))
+    out_name = os.path.join(args.out, "{0}.png".format(country.out_name))
     render_to_file(m, out_name, out_format, args.scale)
 
 print("done")
