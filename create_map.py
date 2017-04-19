@@ -27,7 +27,10 @@ countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
 disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
-tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
+#tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
+
+tiny_file = countries_file_50m
+land_file_50m = countries_file_50m
 
 lakes_size = 3
 
@@ -94,6 +97,7 @@ class CountryInfo:
         self.disputed = None
         self.one_color = False
         self.marker_size = None
+        self.marker_offset = None
         if isinstance(data, unicode):
             self.name = data.encode()
         elif isinstance(data, str):
@@ -107,6 +111,8 @@ class CountryInfo:
                 self.one_color = data['one-color']
             if 'marker-size' in data:
                 self.marker_size = tuple(data['marker-size'])
+            if 'marker-offset' in data:
+                self.marker_offset = tuple(data['marker-offset'])
 
 countries = []
 for country in data['countries']:
@@ -263,7 +269,7 @@ def boundaries_style():
 #    stk.add_dash(2, 2)
 #    stk.add_dash(2, 2)
     stk.color = Color('#808080')
-    stk.width = 1.0
+    stk.width = 1.5
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -320,7 +326,7 @@ def disputed_layer(name):
     layer.datasource = ds
     return layer
 
-def tiny_style(name, size):
+def tiny_style(name, size=(10,10), offset=None):
     s = Style()
     r = Rule()
 
@@ -332,6 +338,8 @@ def tiny_style(name, size):
     ms.stroke = Stroke(Color('black'), 0.0)
     ms.width = Expression('{0}'.format(size[0]))
     ms.height = Expression('{0}'.format(size[1]))
+    if offset:
+        ms.transform = 'translate({0}, {1})'.format(offset[0], offset[1])
     r.symbols.append(ms)
 
     s.rules.append(r)
@@ -382,7 +390,7 @@ def set_country(m, info):
         m.layers[2:2] = layer
 
     if info.marker_size and not args.no_markers:
-        style = tiny_style(info.name, info.marker_size)
+        style = tiny_style(info.name, size=info.marker_size, offset=info.marker_offset)
         layer = tiny_layer(info.name)
         style_name = 'Tiny Style ' + info.name
         m.append_style(style_name, style)
