@@ -81,6 +81,9 @@ parser.add_argument('--no-markers', action='store_true',
 parser.add_argument('--top', action='store_true',
                     help="move the country layer above the land boundary layer")
 
+parser.add_argument('--land-only', action='store_true',
+                    help="render the land layer only")
+
 parser.add_argument('--test', action='store_true',
                     help="produce one map only")
 
@@ -365,15 +368,17 @@ def tiny_layer(name):
 
 def base_map(data, width, height):
     m = Map(width, height, data['proj'].encode())
-    m.background = Color('#b3e2ee')
+    if not args.land_only:
+        m.background = Color('#b3e2ee')
     add_layer_with_style(m, land_layer(),
                          land_style(), 'Land Style')
-    add_layer_with_style(m, boundaries_layer(),
-                         boundaries_style(), 'Boundaries Style')
-    add_layer_with_style(m, land_boundaries_layer(),
-                         land_boundaries_style(), 'Land Boundaries Style')
-    add_layer_with_style(m, lakes_layer(),
-                         lakes_style(), 'Lakes Style')
+    if not args.land_only:
+        add_layer_with_style(m, boundaries_layer(),
+                             boundaries_style(), 'Boundaries Style')
+        add_layer_with_style(m, land_boundaries_layer(),
+                             land_boundaries_style(), 'Land Boundaries Style')
+        add_layer_with_style(m, lakes_layer(),
+                             lakes_style(), 'Lakes Style')
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
