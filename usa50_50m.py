@@ -68,6 +68,9 @@ parser.add_argument('--out', dest="out_dir", metavar='DIR',
 parser.add_argument('--color', default='red',
                     help="polygon fill color (use 'none' for no color)")
 
+parser.add_argument('--no-border', action='store_true',
+                    help="do no render borders and the background")
+
 #parser.add_argument('--line-color', default='black',
 #                    help="border line color (use 'none' for no borders)")
 
@@ -297,14 +300,19 @@ def state_layer(state_abbrev, flag10=False):
 
 def create_map(proj, coords, width, height, zoom=None):
     m = Map(width, height, proj)
-    #m.background = Color('#b3e2ee80')
-    m.background = Color('#b3e2ee')
-    add_layer_with_style(m, land_layer(), land_style())
-    add_layer_with_style(m, usa_layer(), usa_style())
-    add_layer_with_style(m, land_boundaries_layer(), land_boundaries_style())
-    add_layer_with_style(m, state_boundaries_layer(), state_boundaries_style())
-    add_layer_with_style(m, lakes_layer(), lakes_style())
-    add_layer_with_style(m, country_boundaries_layer(), country_boundaries_style())
+    if args.no_border:
+        add_layer_with_style(m, land_layer(), land_style())
+        add_layer_with_style(m, usa_layer(), usa_style())
+        add_layer_with_style(m, lakes_layer(), lakes_style())
+    else:
+        #m.background = Color('#b3e2ee80')
+        m.background = Color('#b3e2ee')
+        add_layer_with_style(m, land_layer(), land_style())
+        add_layer_with_style(m, usa_layer(), usa_style())
+        add_layer_with_style(m, land_boundaries_layer(), land_boundaries_style())
+        add_layer_with_style(m, state_boundaries_layer(), state_boundaries_style())
+        add_layer_with_style(m, lakes_layer(), lakes_style())
+        add_layer_with_style(m, country_boundaries_layer(), country_boundaries_style())
     m.zoom_to_box(Box2d(*coords))
     if zoom:
         m.zoom(zoom)
@@ -313,16 +321,22 @@ def create_map(proj, coords, width, height, zoom=None):
 def render_states(m, states, prefix="", suffix=""):
     for state in states:
         print("Processing: {0}".format(state))
-        
-        while len(m.layers) > 6:
-            del m.layers[3]
+
+        if args.no_border:
+            pos = 2
+            while len(m.layers) > 3:
+                del m.layers[pos]
+        else:
+            pos = 3
+            while len(m.layers) > 6:
+                del m.layers[pos]
 
         style = state_style(state)
         layer = state_layer(state, flag10=(state == 'AK'))
         style_name = layer.name + 'Style'
         m.append_style(style_name, style)
         layer.styles.append(style_name)
-        m.layers[3:3] = layer
+        m.layers[pos:pos] = layer
 
         out_name = '{0}{1}{2}.png'.format(prefix, state.lower(), suffix)
         render_to_file(m, os.path.join(args.out_dir, out_name),
