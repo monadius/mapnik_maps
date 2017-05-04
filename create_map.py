@@ -171,6 +171,10 @@ elif args.size:
 else:
     width, height = xd_width, xd_height
 
+offset_scale_x = float(width) / xd_width
+offset_scale_y = float(height) / xd_height
+#print("offset-scales = {0} {1}".format(offset_scale_x, offset_scale_y))
+
 if args.color == 'none':
     args.color = None
 
@@ -352,7 +356,7 @@ def tiny_style(name, size=(10,10), offset=None):
     ms.width = Expression('{0}'.format(size[0] * args.scale))
     ms.height = Expression('{0}'.format(size[1] * args.scale))
     if offset:
-        ms.transform = 'translate({0}, {1})'.format(offset[0] * args.scale, offset[1] * args.scale)
+        ms.transform = 'translate({0}, {1})'.format(offset[0] * offset_scale_x, offset[1] * offset_scale_y)
     r.symbols.append(ms)
 
     s.rules.append(r)
