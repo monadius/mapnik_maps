@@ -149,14 +149,14 @@ if args.use50m:
     boundaries_file = boundaries_file_50m
     countries_file = countries_file_50m
     lakes_file = lakes_file_50m
-    tiny_file = countries_file_50m
+#    tiny_file = countries_file_50m
 else:
     land_file = land_file_10m
     land_boundaries_file = land_boundaries_file_10m
     boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
     lakes_file = lakes_file_10m
-    tiny_file = countries_file_10m
+#    tiny_file = countries_file_10m
     
 # Validate arguments
 
