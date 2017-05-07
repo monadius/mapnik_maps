@@ -103,6 +103,7 @@ with open(args.input_file) as f:
 class CountryInfo:
     def __init__(self, data):
         self.disputed = None
+        self.extra_disputed = None
         self.one_color = False
         self.marker_size = None
         self.marker_offset = None
@@ -118,6 +119,8 @@ class CountryInfo:
                 self.out_name = data['out'].encode()
             if 'disputed' in data:
                 self.disputed = data['disputed'].encode()
+            if 'extra-disputed' in data:
+                self.extra_disputed = data['extra-disputed'].encode()
             if 'one-color' in data:
                 self.one_color = data['one-color']
             if 'marker-size' in data:
@@ -307,7 +310,7 @@ def country_style(name):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[admin] = '{0}'".format(name))
+    r.filter = Expression("[admin] = '{0}' or [sovereignt] = '{0}'".format(name))
 
     if args.color:
         ps = PolygonSymbolizer()
@@ -339,8 +342,8 @@ def disputed_style(name, one_color=False):
     s.rules.append(r)
     return s
 
-def disputed_layer(name):
-    ds = Shapefile(file=disputed_file)
+def disputed_layer(name, data_file=disputed_file):
+    ds = Shapefile(file=data_file)
     layer = Layer("Disputed " + name)
     layer.datasource = ds
     return layer
@@ -408,6 +411,14 @@ def set_country(m, info):
         style = disputed_style(info.disputed, one_color=info.one_color)
         layer = disputed_layer(info.disputed)
         style_name = 'Disputed Style ' + info.disputed
+        m.append_style(style_name, style)
+        layer.styles.append(style_name)
+        m.layers[pos+1:pos+1] = layer
+
+    if info.extra_disputed:
+        style = disputed_style(info.extra_disputed, one_color=info.one_color)
+        layer = disputed_layer(info.extra_disputed, data_file=countries_file)
+        style_name = 'Extra Disputed Style ' + info.extra_disputed
         m.append_style(style_name, style)
         layer.styles.append(style_name)
         m.layers[pos+1:pos+1] = layer
