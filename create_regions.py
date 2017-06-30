@@ -6,11 +6,16 @@ import json
 # Global variables
 
 base_dir = '/Users/monad/Work/data'
+
 cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
 phys10m_dir = os.path.join(base_dir, '10m_physical')
+edited10m_dir = os.path.join(base_dir, 'edited10m')
+
 cult50m_dir = os.path.join(base_dir, '50m_cultural')
 phys50m_dir = os.path.join(base_dir, '50m_physical')
 edited50m_dir = os.path.join(base_dir, 'edited50m')
+
+# 50m data files
 
 land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
 #land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
@@ -21,6 +26,10 @@ boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines
 countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
 lakes_file_50m = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
 
+land_file_50m = countries_file_50m
+
+# 10m data files
+
 #land_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
@@ -28,20 +37,20 @@ boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_l
 countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
-disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
-#tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
+#disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
 
-tiny_file = countries_file_50m
-land_file_50m = countries_file_50m
+regions_file = os.path.join(cult10m_dir, 'ne_10m_admin_1_states_provinces_shp.shp')
+region_boundaries_file = os.path.join(edited10m_dir, 'ne_10m_admin_1_states_provinces_lines.shp')
+tiny_file = regions_file
 
 lakes_size = 3
 
 def report_error(msg):
-    sys.stderr.write("**ERROR**: {0}\n".format(msg))
+    sys.stderr.write("\n**ERROR**: {0}\n\n".format(msg))
 
 # Command line arguments
     
-parser = argparse.ArgumentParser(description="Creates a map from a data file")
+parser = argparse.ArgumentParser(description="Creates a specific country map with regions")
 
 size_group = parser.add_mutually_exclusive_group()
 size_group.add_argument('--size', nargs=2, metavar=('W', 'H'),
@@ -69,7 +78,7 @@ parser.add_argument('--out', metavar='DIR',
                     help="the output directory")
 
 parser.add_argument('--color', default='red',
-                    help="polygon fill color for countries (use 'none' for no color)")
+                    help="polygon fill color for regions (use 'none' for no color)")
 
 #parser.add_argument('--line-color', default='black',
 #                    help="border line color (use 'none' for no borders)")
@@ -81,7 +90,10 @@ parser.add_argument('--no-markers', action='store_true',
                     help="do not draw markers")
 
 parser.add_argument('--top', action='store_true',
-                    help="move the country layer above the land boundary layer")
+                    help="move the regions layer above the land boundary layer")
+
+parser.add_argument('--all-boundaries', action='store_true',
+                    help="render all boundaries between countries")
 
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
@@ -92,8 +104,8 @@ parser.add_argument('--test', action='store_true',
 parser.add_argument('input_file',
                     help="input JSON data file")
 
-parser.add_argument('countries', nargs='*',
-                    help="a list of countries (if empty then maps for all countries in the input data file are created)")
+parser.add_argument('regions', nargs='*',
+                    help="a list of regions (if empty then maps for all regions in the input data file are created)")
 
 # Parse arguments and load the input file
 
@@ -102,11 +114,8 @@ args = parser.parse_args()
 with open(args.input_file) as f:
     data = json.load(f)
 
-class CountryInfo:
+class RegionInfo:
     def __init__(self, data):
-        self.disputed = None
-        self.extra_disputed = None
-        self.one_color = False
         self.marker_size = None
         self.marker_offset = None
         self.out_name = None
@@ -119,12 +128,6 @@ class CountryInfo:
             self.name = data['name'].encode()
             if 'out' in data:
                 self.out_name = data['out'].encode()
-            if 'disputed' in data:
-                self.disputed = data['disputed'].encode()
-            if 'extra-disputed' in data:
-                self.extra_disputed = data['extra-disputed'].encode()
-            if 'one-color' in data:
-                self.one_color = data['one-color']
             if 'marker-size' in data:
                 self.marker_size = tuple(data['marker-size'])
             if 'marker-offset' in data:
@@ -132,11 +135,17 @@ class CountryInfo:
         if not self.out_name:
             self.out_name = self.name
 
-countries = []
-for country in data['countries']:
-    countries.append(CountryInfo(country))
+regions = []
+for region in data['regions']:
+    regions.append(RegionInfo(region))
                 
 # Validate data
+
+if 'admin' not in data:
+    report_error("'admin' is not defined in {0}".format(args.input_file))
+    exit(2)
+
+#admin = data['admin']
 
 if 'xd-size' not in data:
     report_error("'xd-size' is not defined in {0}".format(args.input_file))
@@ -154,14 +163,12 @@ if args.use50m:
     boundaries_file = boundaries_file_50m
     countries_file = countries_file_50m
     lakes_file = lakes_file_50m
-#    tiny_file = countries_file_50m
 else:
     land_file = land_file_10m
     land_boundaries_file = land_boundaries_file_10m
     boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
     lakes_file = lakes_file_10m
-#    tiny_file = countries_file_10m
     
 # Validate arguments
 
@@ -192,18 +199,22 @@ if args.color == 'none':
 #    args.line_color = None
     
 if args.scale < 0.01 or args.scale > 10:
-    sys.stderr.write("\nBad scale: {0}\n\n".format(args.scale))
+    report_error("Bad scale: {0}".format(args.scale))
     sys.exit(1)
     
 if width < 1 or height < 1 or width > 10000 or height > 10000:
-    sys.stderr.write("\nBad image size: {0} x {1}\n\n".format(width, height))
+    report_error("Bad image size: {0} x {1}".format(width, height))
     sys.exit(1)
     
 if not args.out:
-    args.out = "out_{0}_{1}_{2}".format(data['name'], width, height)
+    args.out = "out_{0}_{1}_{2}".format(data['admin'], width, height)
 
 if not os.path.exists(args.out):
     os.makedirs(args.out)
+
+if not os.path.isdir(args.out):
+    report_error("The output path is not a directory: {0}".format(args.out))
+    sys.exit(1)
 
 # Styles and layers
 
@@ -234,6 +245,27 @@ def land_style():
 def land_layer():
     ds = Shapefile(file=land_file)    
     layer = Layer('Land')
+    layer.datasource = ds
+    return layer
+    
+# Admin (country)
+
+def admin_style(admin):
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[admin] = '{0}'".format(admin))
+
+    ps = PolygonSymbolizer()
+    ps.fill = Color('white')
+    r.symbols.append(ps)
+
+    s.rules.append(r)
+    return s
+
+def admin_layer():
+    ds = Shapefile(file=countries_file)
+    layer = Layer('Admin (country)')
     layer.datasource = ds
     return layer
 
@@ -287,18 +319,27 @@ def lakes_layer():
 
 # Boundaries of countries
 
-def boundaries_style():
+def boundaries_style(admin=None):
     s = Style()
     r = Rule()
 
+    if admin:
+        r.filter = Expression("[adm0_left] = '{0}' or [adm0_right] = '{0}'".format(admin))
+
     stk = Stroke()
-#    stk.add_dash(8, 4)
-#    stk.add_dash(2, 2)
-#    stk.add_dash(2, 2)
-    stk.color = Color('#808080')
-    stk.width = 1.5
+    stk.add_dash(8, 4)
+    stk.add_dash(2, 2)
+    stk.add_dash(2, 2)
+    stk.color = Color('black')
+    stk.width = 3.0
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
+
+    # stk = Stroke()
+    # stk.color = Color('black')
+    # stk.width = 2.0
+    # ls = LineSymbolizer(stk)
+    # r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -309,13 +350,34 @@ def boundaries_layer():
     layer.datasource = ds
     return layer
 
-# A country
+# Boundaries of regions
 
-def country_style(name):
+def region_boundaries_style(admin):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[admin] = '{0}' or [sovereignt] = '{0}'".format(name))
+    r.filter = Expression("[adm0_name] = '{0}'".format(admin))
+
+    stk = Stroke(Color('#808080'), 1.5)
+    ls = LineSymbolizer(stk)
+    r.symbols.append(ls)
+
+    s.rules.append(r)
+    return s
+
+def region_boundaries_layer():
+    ds = Shapefile(file=region_boundaries_file)
+    layer = Layer('Region Boundaries')
+    layer.datasource = ds
+    return layer
+
+# Regions
+
+def region_style(admin, name):
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[admin] = '{0}' and [name] = '{1}'".format(admin, name))
 
     if args.color:
         ps = PolygonSymbolizer()
@@ -325,39 +387,17 @@ def country_style(name):
     s.rules.append(r)
     return s
 
-def country_layer(name):
-    ds = Shapefile(file=countries_file)
-    layer = Layer("Country " + name)
+def region_layer(name):
+    ds = Shapefile(file=regions_file)
+    layer = Layer("Region " + name)
     layer.datasource = ds
     return layer
 
-def disputed_style(name, one_color=False):
+def tiny_style(admin, name, size=(10,10), offset=None):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[name] = '{0}'".format(name))
-
-    ps = PolygonSymbolizer()
-    if one_color and args.color:
-        ps.fill = Color(args.color)
-    else:
-        ps.fill = Color('#f76d50')
-    r.symbols.append(ps)
-
-    s.rules.append(r)
-    return s
-
-def disputed_layer(name, data_file=disputed_file):
-    ds = Shapefile(file=data_file)
-    layer = Layer("Disputed " + name)
-    layer.datasource = ds
-    return layer
-
-def tiny_style(name, size=(10,10), offset=None):
-    s = Style()
-    r = Rule()
-
-    r.filter = Expression("[name] = '{0}' or [sovereignt] = '{0}'".format(name))
+    r.filter = Expression("[admin] = '{0}' and [name] = '{1}'".format(admin, name))
 
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
@@ -382,13 +422,19 @@ def tiny_layer(name):
 
 def base_map(data, width, height):
     m = Map(width, height, data['proj'].encode())
+    admin = data['admin']
     if not args.land_only:
         m.background = Color('#b3e2ee')
     add_layer_with_style(m, land_layer(),
                          land_style(), 'Land Style')
+    add_layer_with_style(m, admin_layer(),
+                         admin_style(admin), 'Admin Style')
     if not args.land_only:
         add_layer_with_style(m, boundaries_layer(),
-                             boundaries_style(), 'Boundaries Style')
+                             boundaries_style(None if args.all_boundaries else admin), 
+                             'Boundaries Style')
+        add_layer_with_style(m, region_boundaries_layer(),
+                             region_boundaries_style(admin), 'Region Boundaries Style')
         add_layer_with_style(m, land_boundaries_layer(),
                              land_boundaries_style(), 'Land Boundaries Style')
         add_layer_with_style(m, lakes_layer(),
@@ -396,40 +442,24 @@ def base_map(data, width, height):
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
-# A map with a country
+# A map with a region
 
-def set_country(m, info):
-    style = country_style(info.name)
-    layer = country_layer(info.name)
+def set_region(m, admin, info):
+    style = region_style(admin, info.name)
+    layer = region_layer(info.name)
     style_name = 'Style ' + info.name
     m.append_style(style_name, style)
     layer.styles.append(style_name)
 
-    pos = 3 if args.top else 1
+    pos = 5 if args.top else 3
 
-    while len(m.layers) > 4:
+    while len(m.layers) > 6:
         del m.layers[pos]
     
     m.layers[pos:pos] = layer
 
-    if info.disputed:
-        style = disputed_style(info.disputed, one_color=info.one_color)
-        layer = disputed_layer(info.disputed)
-        style_name = 'Disputed Style ' + info.disputed
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos+1:pos+1] = layer
-
-    if info.extra_disputed:
-        style = disputed_style(info.extra_disputed, one_color=info.one_color)
-        layer = disputed_layer(info.extra_disputed, data_file=countries_file)
-        style_name = 'Extra Disputed Style ' + info.extra_disputed
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos+1:pos+1] = layer
-
     if info.marker_size and not args.no_markers:
-        style = tiny_style(info.name, size=info.marker_size, offset=info.marker_offset)
+        style = tiny_style(admin, info.name, size=info.marker_size, offset=info.marker_offset)
         layer = tiny_layer(info.name)
         style_name = 'Tiny Style ' + info.name
         m.append_style(style_name, style)
@@ -442,6 +472,7 @@ from mapnik import *
 
 out_format = 'png256' if args.png8 else 'png'
 
+admin = data['admin']
 m = base_map(data, width, height)
 render_to_file(m, os.path.join(args.out, 'a.png'), out_format, args.scale)
 
@@ -450,20 +481,20 @@ if args.test:
     exit(0)
 
 def check_name(name):
-    if not args.countries:
+    if not args.regions:
         return True
-    for x in args.countries:
+    for x in args.regions:
         if name.startswith(x):
             return True
     return False
 
-for country in countries:
-    name = country.name
+for region in regions:
+    name = region.name
     if not check_name(name):
         continue
     print("Processing: {0}".format(name))
-    set_country(m, country)
-    out_name = os.path.join(args.out, "{0}.png".format(country.out_name))
+    set_region(m, admin, region)
+    out_name = os.path.join(args.out, "{0}.png".format(region.out_name))
     render_to_file(m, out_name, out_format, args.scale)
 
 print("done")

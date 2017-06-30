@@ -1,0 +1,56 @@
+{
+    "admin": "Australia",
+    "proj": "+proj=lcc +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=134 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+    "bbox": [
+        -2272663,
+        -5049651,
+        2170027,
+        -1067299
+    ],
+    "xd-size": [
+        1000,
+        900
+    ],
+    "regions": [
+        {
+            "name": "Australian Capital Territory",
+            "out": "Australian",
+            "marker-size": [
+                80,
+                80
+            ],
+            "marker-offset": [
+                0,
+                0
+            ]
+        },
+        {
+            "name": "New South Wales",
+            "out": "Wales"
+        },
+        {
+            "name": "Northern Territory",
+            "out": "Northern"
+        },
+        {
+            "name": "Queensland",
+            "out": "Queensland"
+        },
+        {
+            "name": "South Australia",
+            "out": "South"
+        },
+        {
+            "name": "Tasmania",
+            "out": "Tasmania"
+        },
+        {
+            "name": "Victoria",
+            "out": "Victoria"
+        },
+        {
+            "name": "Western Australia",
+            "out": "Western"
+        }
+    ]
+}
