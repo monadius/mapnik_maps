@@ -1,0 +1,37 @@
+{
+    "admin": "Netherlands",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+        -468709,
+        2333684,
+        -168996,
+        2663620
+    ],
+    "xd-size": [
+        800,
+        900
+    ],
+    "regions": [
+        "Drenthe",
+        "Flevoland",
+        "Friesland",
+        "Gelderland",
+        "Groningen",
+        "Limburg",
+        {
+            "name": "Noord-Brabant",
+            "out": "NorthBrabant"
+        },
+        {
+            "name": "Noord-Holland",
+            "out": "NorthHolland"
+        },
+        "Overijssel",
+        {
+            "name": "Zuid-Holland",
+            "out": "SouthHolland"
+        },
+        "Utrecht",
+        "Zeeland"
+    ]
+}
