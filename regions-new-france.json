@@ -1,0 +1,98 @@
+{
+    "admin": "France",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+        -1107276,
+        1287968,
+        -19882,
+        2410873
+    ],
+    "xd-size": [
+        900,
+        900
+    ],
+    "region-boundaries-file": "/Users/monad/Work/data/edited10m/france-new-region-boundaries.shp",
+    "regions-file": "/Users/monad/Work/data/edited10m/france_state_provinces_shp.shp",
+    "regions": [
+        {
+            "name": "Bretagne",
+            "out": "Brittany"
+        },
+        {
+            "name": "Haute-Normandie",
+            "more": [
+                "Basse-Normandie"
+            ],
+            "out": "Normandy"
+        },
+        {
+            "name": "Nord-Pas-de-Calais",
+            "more": [
+                "Picardie"
+            ],
+            "out": "Hauts-de-France"
+        },
+        {
+            "name": "Pays de la Loire",
+            "out": "Pays de la Loire"
+        },
+        {
+            "name": "Centre",
+            "out": "Centre-Val de Loire"
+        },
+        {
+            "name": "Ile",
+            "code": "FRA-2680",
+            "out": "Ile"
+        },
+        {
+            "name": "Champagne-Ardenne",
+            "more": [
+                "Alsace",
+                "Lorraine"
+            ],
+            "out": "Grand Est"
+        },
+        {
+            "name": "Poitou-Charentes",
+            "more": [
+                "Aquitaine",
+                "Limousin"
+            ],
+            "out": "Nouvelle-Aquitaine"
+        },
+        {
+            "name": "Rhone",
+            "code": "FRA-1265",
+            "more": [
+                "Auvergne"
+            ],
+            "out": "Auvergne-Rhone-Alpes"
+        },
+        {
+            "name": "Franche-Comt",
+            "code": "FRA-2685",
+            "more": [
+                "Bourgogne"
+            ],
+            "out": "Bourgogne-Franche-Comte"
+        },
+        {
+            "name": "Midi-Pyrnes",
+            "code": "FRA-2669",
+            "more": [
+                "Languedoc-Roussillon"
+            ],
+            "out": "Occitanie"
+        },
+        {
+            "name": "Provence-Alpes-Cte-d\\'Azur",
+            "code": "FRA-2667",
+            "out": "Provence-Alpes-Cote dAzur"
+        },
+        {
+            "name": "Corse",
+            "out": "Corsica"
+        }
+    ]
+}

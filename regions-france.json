@@ -1,0 +1,92 @@
+{
+    "admin": "France",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+        -1107276,
+        1287968,
+        -19882,
+        2410873
+    ],
+    "xd-size": [
+        900,
+        900
+    ],
+    "regions-file": "/Users/monad/Work/data/edited10m/france_state_provinces_shp.shp",
+    "regions": [
+        "Alsace",
+        "Aquitaine",
+        "Auvergne",
+        {
+            "name": "Bretagne",
+            "out": "Brittany"
+        },
+        {
+            "name": "Bourgogne",
+            "out": "Burgundy"
+        },
+        "Centre",
+        {
+            "name": "Champagne-Ardenne",
+            "out": "Champagne"
+        },
+        {
+            "name": "Corse",
+            "out": "Corsica"
+        },
+        {
+            "name": "Franche-Comt",
+            "code": "FRA-2685",
+            "out": "Franche"
+        },
+        {
+            "name": "Ile",
+            "code": "FRA-2680",
+            "out": "Ile"
+        },
+        {
+            "name": "Languedoc-Roussillon",
+            "out": "Languedoc"
+        },
+        "Limousin",
+        "Lorraine",
+        {
+            "name": "Midi-Pyrnes",
+            "code": "FRA-2669",
+            "out": "Midi"
+        },
+        {
+            "name": "Nord-Pas-de-Calais",
+            "out": "Nord"
+        },
+        {
+            "name": "Pays de la Loire",
+            "out": "Pays"
+        },
+        {
+            "name": "Picardie",
+            "out": "Picardy"
+        },
+        {
+            "name": "Poitou-Charentes",
+            "out": "Poitou"
+        },
+        {
+            "name": "Provence-Alpes-Cte-d\\'Azur",
+            "code": "FRA-2667",
+            "out": "Provence"
+        },
+        {
+            "name": "Rhone",
+            "code": "FRA-1265",
+            "out": "Rhone"
+        },
+        {
+            "name": "Haute-Normandie",
+            "out": "Upper"
+        },
+        {
+            "name": "Basse-Normandie",
+            "out": "Lower"
+        }
+    ]
+}
