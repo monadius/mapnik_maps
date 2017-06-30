@@ -1,0 +1,67 @@
+{
+    "admin": "Germany",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+        -324983,
+        1932021,
+        375961,
+        2814940
+    ],
+    "xd-size": [
+        700,
+        900
+    ],
+    "regions": [
+        {
+            "name": "Baden-Wrttemberg",
+            "code": "DEU-1573",
+            "out": "Baden"
+        },
+        {
+            "name": "Bayern",
+            "out": "Bavaria"
+        },
+        "Berlin",
+        "Brandenburg",
+        "Bremen",
+        "Hamburg",
+        {
+            "name": "Hessen",
+            "out": "Hesse"
+        },
+        {
+            "name": "Mecklenburg-Vorpommern",
+            "out": "Mecklenburg"
+        },
+        {
+            "name": "Rheinland-Pfalz",
+            "out": "Rhineland"
+        },
+        "Saarland",
+        {
+            "name": "Nordrhein-Westfalen",
+            "out": "North"
+        },
+        {
+            "name": "Sachsen",
+            "out": "Saxony"
+        },
+        {
+            "name": "Sachsen-Anhalt",
+            "out": "SaxonyAnhalt"
+        },
+        {
+            "name": "Schleswig-Holstein",
+            "out": "Schleswig"
+        },
+        {
+            "name": "Thringen",
+            "code": "DEU-1577",
+            "out": "Thuringia"
+        },
+        {
+            "name": "Niedersachsen",
+            "out": "Lower"
+        }
+    ]
+}
