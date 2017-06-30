@@ -43,8 +43,6 @@ regions_file = os.path.join(cult10m_dir, 'ne_10m_admin_1_states_provinces_shp.sh
 region_boundaries_file = os.path.join(edited10m_dir, 'ne_10m_admin_1_states_provinces_lines.shp')
 tiny_file = regions_file
 
-lakes_size = 3
-
 def report_error(msg):
     sys.stderr.write("\n**ERROR**: {0}\n\n".format(msg))
 
@@ -86,11 +84,17 @@ parser.add_argument('--color', default='red',
 parser.add_argument('--scale', type=float, default=1.0,
                     help="scale for lines")
 
+parser.add_argument('--lakes-size', type=int, default=3,
+                    help="the size of rendered lakes (0 = no lakes, 1 = largest lakes, etc.)")
+
 parser.add_argument('--no-markers', action='store_true',
                     help="do not draw markers")
 
 parser.add_argument('--top', action='store_true',
                     help="move the regions layer above the land boundary layer")
+
+parser.add_argument('--admin-only', action='store_true',
+                    help="render the main country only")
 
 parser.add_argument('--all-boundaries', action='store_true',
                     help="render all boundaries between countries")
@@ -263,6 +267,23 @@ def admin_style(admin):
     s.rules.append(r)
     return s
 
+def admin_style_with_boundary(admin):
+    s = Style()
+    r = Rule()
+
+    r.filter = Expression("[admin] = '{0}'".format(admin))
+
+    ps = PolygonSymbolizer()
+    ps.fill = Color('white')
+    r.symbols.append(ps)
+
+    stk = Stroke(Color('#A0A0A0'), 1.0)
+    ls = LineSymbolizer(stk)
+    r.symbols.append(ls)
+
+    s.rules.append(r)
+    return s    
+
 def admin_layer():
     ds = Shapefile(file=countries_file)
     layer = Layer('Admin (country)')
@@ -298,7 +319,7 @@ def lakes_style():
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[scalerank] <= {0}".format(lakes_size))
+    r.filter = Expression("[scalerank] <= {0}".format(args.lakes_size))
 
     ps = PolygonSymbolizer()
     ps.fill = Color('#b3e2ee')
@@ -423,13 +444,24 @@ def tiny_layer(name):
 def base_map(data, width, height):
     m = Map(width, height, data['proj'].encode())
     admin = data['admin']
-    if not args.land_only:
+    if args.admin_only:
+        add_layer_with_style(m, admin_layer(),
+                             admin_style_with_boundary(admin), 'Admin Style')
+        add_layer_with_style(m, region_boundaries_layer(),
+                             region_boundaries_style(admin), 'Region Boundaries Style')
+        add_layer_with_style(m, lakes_layer(),
+                             lakes_style(), 'Lakes Style')
+    elif args.land_only:
+        add_layer_with_style(m, land_layer(),
+                             land_style(), 'Land Style')
+        add_layer_with_style(m, admin_layer(),
+                             admin_style(admin), 'Admin Style')
+    else:
         m.background = Color('#b3e2ee')
-    add_layer_with_style(m, land_layer(),
-                         land_style(), 'Land Style')
-    add_layer_with_style(m, admin_layer(),
-                         admin_style(admin), 'Admin Style')
-    if not args.land_only:
+        add_layer_with_style(m, land_layer(),
+                             land_style(), 'Land Style')
+        add_layer_with_style(m, admin_layer(),
+                             admin_style(admin), 'Admin Style')
         add_layer_with_style(m, boundaries_layer(),
                              boundaries_style(None if args.all_boundaries else admin), 
                              'Boundaries Style')
@@ -451,9 +483,14 @@ def set_region(m, admin, info):
     m.append_style(style_name, style)
     layer.styles.append(style_name)
 
-    pos = 5 if args.top else 3
+    if args.admin_only:
+        pos = 2 if args.top else 1
+        max_pos = 3
+    else:
+        pos = 5 if args.top else 3
+        max_pos = 6
 
-    while len(m.layers) > 6:
+    while len(m.layers) > max_pos:
         del m.layers[pos]
     
     m.layers[pos:pos] = layer
