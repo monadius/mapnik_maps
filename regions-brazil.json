@@ -1,0 +1,112 @@
+{
+    "admin": "Brazil",
+    "proj": "+proj=lcc +lat_1=-5 +lat_2=-42 +lat_0=-32 +lon_0=-60 +x_0=0 +y_0=0 +ellps=aust_SA +units=m +no_defs",
+    "bbox": [
+        -1515719,
+        -308924,
+        2759606,
+        4151227
+    ],
+    "xd-size": [
+        900,
+        900
+    ],
+    "regions": [
+        "Acre",
+        "Alagoas",
+        {
+            "name": "Amap",
+            "code": "BRA-681",
+            "out": "Amapa"
+        },
+        "Amazonas",
+        "Bahia",
+        {
+            "name": "Cear",
+            "code": "BRA-621",
+            "out": "Ceara"
+        },
+        {
+            "name": "Distrito Federal",
+            "out": "Distrito"
+        },
+        {
+            "name": "Esprito Santo",
+            "code": "BRA-625",
+            "out": "Espirito"
+        },
+        {
+            "name": "Gois",
+            "code": "BRA-1294",
+            "out": "Goias"
+        },
+        {
+            "name": "Maranho",
+            "code": "BRA-593",
+            "out": "Maranhao"
+        },
+        {
+            "name": "Mato Grosso",
+            "out": "Mato"
+        },
+        {
+            "name": "Mato Grosso do Sul",
+            "out": "MatoSul"
+        },
+        {
+            "name": "Minas Gerais",
+            "out": "Minas"
+        },
+        {
+            "name": "Paran",
+            "code": "BRA-613",
+            "out": "Parana"
+        },
+        {
+            "name": "Paraba",
+            "code": "BRA-596",
+            "out": "Paraiba"
+        },
+        {
+            "name": "Par",
+            "code": "BRA-594",
+            "out": "Para"
+        },
+        "Pernambuco",
+        {
+            "name": "Piau",
+            "code": "BRA-622",
+            "out": "Piaui"
+        },
+        {
+            "name": "Rio Grande do Norte",
+            "out": "RioNorte"
+        },
+        {
+            "name": "Rio Grande do Sul",
+            "out": "RioSul"
+        },
+        {
+            "name": "Rio de Janero",
+            "code": "BRA-627",
+            "out": "Rio"
+        },
+        {
+            "name": "Rondnia",
+            "code": "BRA-595",
+            "out": "Rondonia"
+        },
+        "Roraima",
+        {
+            "name": "Santa Catarina",
+            "out": "Santa"
+        },
+        "Sergipe",
+        {
+            "name": "So Paulo",
+            "code": "BRA-1311",
+            "out": "Sao"
+        },
+        "Tocantins"
+    ]
+}
