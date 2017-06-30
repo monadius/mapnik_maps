@@ -123,6 +123,8 @@ class RegionInfo:
         self.marker_size = None
         self.marker_offset = None
         self.out_name = None
+        self.code = None
+        self.more = []
         if isinstance(data, unicode):
             self.name = data.encode()
         elif isinstance(data, str):
@@ -130,6 +132,10 @@ class RegionInfo:
         else:
             assert(isinstance(data, dict))
             self.name = data['name'].encode()
+            if 'more' in data:
+                self.more = [s.encode() for s in data['more']]
+            if 'code' in data:
+                self.code = data['code'].encode()
             if 'out' in data:
                 self.out_name = data['out'].encode()
             if 'marker-size' in data:
@@ -173,7 +179,13 @@ else:
     boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
     lakes_file = lakes_file_10m
-    
+
+if 'regions-file' in data:
+    regions_file = data['regions-file'].encode()
+
+if 'region-boundaries-file' in data:
+    region_boundaries_file = data['region-boundaries-file'].encode()
+
 # Validate arguments
 
 if args.sd:
@@ -394,11 +406,22 @@ def region_boundaries_layer():
 
 # Regions
 
-def region_style(admin, name):
+def region_style(admin, name, code=None, more=[]):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[admin] = '{0}' and [name] = '{1}'".format(admin, name))
+    filter_str = "[admin] = '{0}'".format(admin)
+    if code:
+        filter_str += " and ([adm1_code] = '{0}'".format(code)
+    else:
+        filter_str += " and ([name] = '{0}'".format(name)
+
+    if more:
+        filter_str += "".join([" or [name] = '{0}'".format(t) for t in more])
+
+    filter_str += ")"
+
+    r.filter = Expression(filter_str)
 
     if args.color:
         ps = PolygonSymbolizer()
@@ -414,11 +437,14 @@ def region_layer(name):
     layer.datasource = ds
     return layer
 
-def tiny_style(admin, name, size=(10,10), offset=None):
+def tiny_style(admin, name, code=None, size=(10,10), offset=None):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[admin] = '{0}' and [name] = '{1}'".format(admin, name))
+    if code:
+        r.filter = Expression("[admin] = '{0}' and [adm1_code] = '{1}'".format(admin, code))
+    else:
+        r.filter = Expression("[admin] = '{0}' and [name] = '{1}'".format(admin, name))
 
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
@@ -477,7 +503,7 @@ def base_map(data, width, height):
 # A map with a region
 
 def set_region(m, admin, info):
-    style = region_style(admin, info.name)
+    style = region_style(admin, info.name, code=info.code, more=info.more)
     layer = region_layer(info.name)
     style_name = 'Style ' + info.name
     m.append_style(style_name, style)
@@ -496,7 +522,8 @@ def set_region(m, admin, info):
     m.layers[pos:pos] = layer
 
     if info.marker_size and not args.no_markers:
-        style = tiny_style(admin, info.name, size=info.marker_size, offset=info.marker_offset)
+        style = tiny_style(admin, info.name, code=info.code, 
+                           size=info.marker_size, offset=info.marker_offset)
         layer = tiny_layer(info.name)
         style_name = 'Tiny Style ' + info.name
         m.append_style(style_name, style)
