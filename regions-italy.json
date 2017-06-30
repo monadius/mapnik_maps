@@ -1,0 +1,57 @@
+{
+    "admin": "Italy",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+-319066,665502, 809569,1927647
+    ],
+    "xd-size": [
+        750,
+        900
+    ],
+    "regions": [
+        "Abruzzo",
+        "Apulia",
+        "Basilicata",
+        "Calabria",
+        "Campania",
+        {
+            "name": "Emilia-Romagna",
+            "out": "Emilia"
+        },
+        {
+            "name": "Friuli-Venezia Giulia",
+            "out": "Friuli"
+        },
+        "Lazio",
+        "Liguria",
+        {
+            "name": "Lombardia",
+            "out": "Lombardy"
+        },
+        "Marche",
+        "Molise",
+        {
+            "name": "Piemonte",
+            "out": "Piedmont"
+        },
+        {
+            "name": "Sardegna",
+            "out": "Sardinia"
+        },
+        "Sicily",
+        {
+            "name": "Toscana",
+            "out": "Tuscany"
+        },
+        {
+            "name": "Trentino-Alto Adige",
+            "out": "Trentino"
+        },
+        "Umbria",
+        {
+            "name": "Valle d\\'Aosta",
+            "out": "Aosta"
+        },
+        "Veneto"
+    ]
+}

@@ -347,20 +347,20 @@ def boundaries_style(admin=None):
     if admin:
         r.filter = Expression("[adm0_left] = '{0}' or [adm0_right] = '{0}'".format(admin))
 
-    stk = Stroke()
-    stk.add_dash(8, 4)
-    stk.add_dash(2, 2)
-    stk.add_dash(2, 2)
-    stk.color = Color('black')
-    stk.width = 3.0
-    ls = LineSymbolizer(stk)
-    r.symbols.append(ls)
-
     # stk = Stroke()
+    # stk.add_dash(8, 4)
+    # stk.add_dash(2, 2)
+    # stk.add_dash(2, 2)
     # stk.color = Color('black')
-    # stk.width = 2.0
+    # stk.width = 3.0
     # ls = LineSymbolizer(stk)
     # r.symbols.append(ls)
+
+    stk = Stroke()
+    stk.color = Color('black')
+    stk.width = 2.0
+    ls = LineSymbolizer(stk)
+    r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -462,11 +462,11 @@ def base_map(data, width, height):
                              land_style(), 'Land Style')
         add_layer_with_style(m, admin_layer(),
                              admin_style(admin), 'Admin Style')
+        add_layer_with_style(m, region_boundaries_layer(),
+                             region_boundaries_style(admin), 'Region Boundaries Style')
         add_layer_with_style(m, boundaries_layer(),
                              boundaries_style(None if args.all_boundaries else admin), 
                              'Boundaries Style')
-        add_layer_with_style(m, region_boundaries_layer(),
-                             region_boundaries_style(admin), 'Region Boundaries Style')
         add_layer_with_style(m, land_boundaries_layer(),
                              land_boundaries_style(), 'Land Boundaries Style')
         add_layer_with_style(m, lakes_layer(),
