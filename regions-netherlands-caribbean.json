@@ -1,0 +1,16 @@
+{
+    "admin": "Netherlands",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox2": [
+        -69,
+        10,
+        -61,
+        19
+    ],
+    "bbox": [-87,6, -59,25],
+    "xd-size": [
+        1200,
+        900
+    ],
+    "regions": []
+}

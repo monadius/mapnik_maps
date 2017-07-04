@@ -356,8 +356,14 @@ def boundaries_style(admin=None):
     s = Style()
     r = Rule()
 
+    stk = Stroke()
+    stk.color = Color('black')
+
     if admin:
         r.filter = Expression("[adm0_left] = '{0}' or [adm0_right] = '{0}'".format(admin))
+        stk.width = 2.0
+    else:
+        stk.width = 1.0
 
     # stk = Stroke()
     # stk.add_dash(8, 4)
@@ -368,9 +374,6 @@ def boundaries_style(admin=None):
     # ls = LineSymbolizer(stk)
     # r.symbols.append(ls)
 
-    stk = Stroke()
-    stk.color = Color('black')
-    stk.width = 2.0
     ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
@@ -490,9 +493,11 @@ def base_map(data, width, height):
                              admin_style(admin), 'Admin Style')
         add_layer_with_style(m, region_boundaries_layer(),
                              region_boundaries_style(admin), 'Region Boundaries Style')
+        if args.all_boundaries:
+            add_layer_with_style(m, boundaries_layer(),
+                                 boundaries_style(), 'All Boundaries Style')
         add_layer_with_style(m, boundaries_layer(),
-                             boundaries_style(None if args.all_boundaries else admin), 
-                             'Boundaries Style')
+                             boundaries_style(admin), 'Boundaries Style')
         add_layer_with_style(m, land_boundaries_layer(),
                              land_boundaries_style(), 'Land Boundaries Style')
         add_layer_with_style(m, lakes_layer(),
@@ -512,6 +517,9 @@ def set_region(m, admin, info):
     if args.admin_only:
         pos = 2 if args.top else 1
         max_pos = 3
+    elif args.all_boundaries:
+        pos = 6 if args.top else 4
+        max_pos = 7
     else:
         pos = 5 if args.top else 3
         max_pos = 6
