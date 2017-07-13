@@ -30,15 +30,15 @@
             "more": [
                 "Picardie"
             ],
-            "out": "Hauts-de-France"
+            "out": "Hauts"
         },
         {
             "name": "Pays de la Loire",
-            "out": "Pays de la Loire"
+            "out": "Pays"
         },
         {
             "name": "Centre",
-            "out": "Centre-Val de Loire"
+            "out": "Centre"
         },
         {
             "name": "Ile",
@@ -51,7 +51,7 @@
                 "Alsace",
                 "Lorraine"
             ],
-            "out": "Grand Est"
+            "out": "Grand"
         },
         {
             "name": "Poitou-Charentes",
@@ -59,7 +59,7 @@
                 "Aquitaine",
                 "Limousin"
             ],
-            "out": "Nouvelle-Aquitaine"
+            "out": "Nouvelle"
         },
         {
             "name": "Rhone",
@@ -67,7 +67,7 @@
             "more": [
                 "Auvergne"
             ],
-            "out": "Auvergne-Rhone-Alpes"
+            "out": "Auvergne"
         },
         {
             "name": "Franche-Comt",
@@ -75,7 +75,7 @@
             "more": [
                 "Bourgogne"
             ],
-            "out": "Bourgogne-Franche-Comte"
+            "out": "Bourgogne"
         },
         {
             "name": "Midi-Pyrnes",
@@ -88,7 +88,7 @@
         {
             "name": "Provence-Alpes-Cte-d\\'Azur",
             "code": "FRA-2667",
-            "out": "Provence-Alpes-Cote dAzur"
+            "out": "Provence"
         },
         {
             "name": "Corse",

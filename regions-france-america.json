@@ -1,5 +1,6 @@
 {
     "admin": "France",
+    "out": "France_America",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [
         -76,
@@ -19,7 +20,7 @@
         },
         {
             "name": "French Guiana",
-            "out": "French Guiana"
+            "out": "Guiana"
         },
         {
             "name": "GLP-00 (Guadeloupe aggregation)",

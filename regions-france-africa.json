@@ -1,5 +1,6 @@
 {
     "admin": "France",
+    "out": "France_Africa",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [
         28,

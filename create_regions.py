@@ -226,7 +226,11 @@ if width < 1 or height < 1 or width > 10000 or height > 10000:
     sys.exit(1)
     
 if not args.out:
-    args.out = "out_{0}_{1}_{2}".format(data['admin'], width, height)
+    if 'out' in data:
+        out_name = data['out']
+    else:
+        out_name = data['admin']
+    args.out = "out_{0}_{1}_{2}".format(out_name, width, height)
 
 if not os.path.exists(args.out):
     os.makedirs(args.out)
@@ -440,6 +444,10 @@ def region_style(admin, name, code=None, more=[], boundary_flag=False):
 
     if boundary_flag:
         stk = Stroke(Color('black'), 1.5)
+        ls = LineSymbolizer(stk)
+        r.symbols.append(ls)
+    elif more and args.color:
+        stk = Stroke(Color(args.color), 0.5)
         ls = LineSymbolizer(stk)
         r.symbols.append(ls)
 
