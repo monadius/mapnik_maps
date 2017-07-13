@@ -1,0 +1,31 @@
+{
+    "admin": "France",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [
+        -76,
+        -2,
+        -49,
+        24
+    ],
+    "xd-size": [
+        900,
+        900
+    ],
+    "regions": [
+        {
+            "name": "Martinique",
+            "out": "Martinique",
+            "marker-size": [40, 40]
+        },
+        {
+            "name": "French Guiana",
+            "out": "French Guiana"
+        },
+        {
+            "name": "GLP-00 (Guadeloupe aggregation)",
+            "out": "Guadeloupe",
+            "marker-size": [40, 40],
+            "marker-offset": [5, -10]
+        }
+    ]
+}

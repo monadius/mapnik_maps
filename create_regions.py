@@ -99,6 +99,9 @@ parser.add_argument('--admin-only', action='store_true',
 parser.add_argument('--all-boundaries', action='store_true',
                     help="render all boundaries between countries")
 
+parser.add_argument('--region-only', action='store_true',
+                    help="render region polygons only")
+
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
 
@@ -388,11 +391,15 @@ def boundaries_layer():
 
 # Boundaries of regions
 
-def region_boundaries_style(admin):
+def region_boundaries_style(admin, region=None):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[adm0_name] = '{0}'".format(admin))
+    filter_str = "[adm0_name] = '{0}'".format(admin)
+    if region:
+        filter_str += " and ([name_l] = '{0}' or [name_r] = '{0}')".format(region)
+    
+    r.filter = Expression(filter_str)
 
     stk = Stroke(Color('#808080'), 1.5)
     ls = LineSymbolizer(stk)
@@ -409,7 +416,7 @@ def region_boundaries_layer():
 
 # Regions
 
-def region_style(admin, name, code=None, more=[]):
+def region_style(admin, name, code=None, more=[], boundary_flag=False):
     s = Style()
     r = Rule()
 
@@ -430,6 +437,11 @@ def region_style(admin, name, code=None, more=[]):
         ps = PolygonSymbolizer()
         ps.fill = Color(args.color)
         r.symbols.append(ps)
+
+    if boundary_flag:
+        stk = Stroke(Color('black'), 1.5)
+        ls = LineSymbolizer(stk)
+        r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -485,6 +497,8 @@ def base_map(data, width, height):
                              land_style(), 'Land Style')
         add_layer_with_style(m, admin_layer(),
                              admin_style(admin), 'Admin Style')
+    elif args.region_only:
+        pass
     else:
         m.background = Color('#b3e2ee')
         add_layer_with_style(m, land_layer(),
@@ -508,7 +522,8 @@ def base_map(data, width, height):
 # A map with a region
 
 def set_region(m, admin, info):
-    style = region_style(admin, info.name, code=info.code, more=info.more)
+    style = region_style(admin, info.name, code=info.code, more=info.more,
+                         boundary_flag=args.region_only)
     layer = region_layer(info.name)
     style_name = 'Style ' + info.name
     m.append_style(style_name, style)
@@ -520,13 +535,16 @@ def set_region(m, admin, info):
     elif args.all_boundaries:
         pos = 6 if args.top else 4
         max_pos = 7
+    elif args.region_only:
+        pos = 0
+        max_pos = 0
     else:
         pos = 5 if args.top else 3
         max_pos = 6
 
     while len(m.layers) > max_pos:
         del m.layers[pos]
-    
+
     m.layers[pos:pos] = layer
 
     if info.marker_size and not args.no_markers:

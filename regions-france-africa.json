@@ -1,0 +1,36 @@
+{
+    "admin": "France",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [
+        28,
+        -32,
+        60,
+        -4
+    ],
+    "xd-size": [
+        900,
+        900
+    ],
+    "regions": [
+        {
+            "name": "REU-00 (Reunion aggregation)",
+            "out": "Reunion",
+            "marker-size": [
+                40,
+                40
+            ]
+        },
+        {
+            "name": "MYT-00 (Mayotte aggregation)",
+            "out": "Mayotte",
+            "marker-size": [
+                40,
+                40
+            ],
+            "marker-offset": [
+                -3,
+                0
+            ]
+        }
+    ]
+}

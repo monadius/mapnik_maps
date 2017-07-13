@@ -2,7 +2,10 @@
     "admin": "Netherlands",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [
--63.33,17.34, -62.89,17.83
+        -63.33,
+        17.34,
+        -62.89,
+        17.83
     ],
     "xd-size": [
         500,
