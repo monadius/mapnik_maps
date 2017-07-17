@@ -86,6 +86,12 @@ parser.add_argument('--top', action='store_true',
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
 
+parser.add_argument('--country-only', action='store_true',
+                    help="render the country only")
+
+parser.add_argument('--country-border-color', default='black',
+                    help="the color of country borders (works only with --country-only)")
+
 parser.add_argument('--test', action='store_true',
                     help="produce one map only")
 
@@ -187,6 +193,9 @@ offset_scale_y = float(height) / xd_height
 
 if args.color == 'none':
     args.color = None
+
+if args.country_border_color == 'none':
+    args.country_border_color = None
 
 #if args.line_color == 'none':
 #    args.line_color = None
@@ -311,7 +320,7 @@ def boundaries_layer():
 
 # A country
 
-def country_style(name):
+def country_style(name, boundary_flag=False):
     s = Style()
     r = Rule()
 
@@ -321,6 +330,11 @@ def country_style(name):
         ps = PolygonSymbolizer()
         ps.fill = Color(args.color)
         r.symbols.append(ps)
+
+    if boundary_flag and args.country_border_color:
+        stk = Stroke(Color(args.country_border_color), 1.5)
+        ls = LineSymbolizer(stk)
+        r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -382,32 +396,43 @@ def tiny_layer(name):
 
 def base_map(data, width, height):
     m = Map(width, height, data['proj'].encode())
-    if not args.land_only:
+
+    if args.land_only:
+        add_layer_with_style(m, land_layer(),
+                             land_style(), 'Land Style')
+    elif args.country_only:
+        pass
+    else:
         m.background = Color('#b3e2ee')
-    add_layer_with_style(m, land_layer(),
-                         land_style(), 'Land Style')
-    if not args.land_only:
+        add_layer_with_style(m, land_layer(),
+                             land_style(), 'Land Style')
         add_layer_with_style(m, boundaries_layer(),
                              boundaries_style(), 'Boundaries Style')
         add_layer_with_style(m, land_boundaries_layer(),
                              land_boundaries_style(), 'Land Boundaries Style')
         add_layer_with_style(m, lakes_layer(),
                              lakes_style(), 'Lakes Style')
+
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
 # A map with a country
 
 def set_country(m, info):
-    style = country_style(info.name)
+    style = country_style(info.name, boundary_flag=args.country_only)
     layer = country_layer(info.name)
     style_name = 'Style ' + info.name
     m.append_style(style_name, style)
     layer.styles.append(style_name)
 
-    pos = 3 if args.top else 1
+    if args.country_only:
+        pos = 0
+        max_pos = 0
+    else:
+        pos = 3 if args.top else 1
+        max_pos = 4
 
-    while len(m.layers) > 4:
+    while len(m.layers) > max_pos:
         del m.layers[pos]
     
     m.layers[pos:pos] = layer
