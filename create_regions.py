@@ -540,12 +540,12 @@ def set_region(m, admin, info):
     if args.admin_only:
         pos = 2 if args.top else 1
         max_pos = 3
-    elif args.all_boundaries:
-        pos = 6 if args.top else 4
-        max_pos = 7
     elif args.region_only:
         pos = 0
         max_pos = 0
+    elif args.all_boundaries:
+        pos = 6 if args.top else 4
+        max_pos = 7
     else:
         pos = 5 if args.top else 3
         max_pos = 6
