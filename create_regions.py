@@ -33,7 +33,7 @@ land_file_50m = countries_file_50m
 #land_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
-boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
+boundaries_file_10m = os.path.join(edited10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
 countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
