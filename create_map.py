@@ -252,8 +252,11 @@ def land_boundaries_style():
     s = Style()
     r = Rule()
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#4fadc2'), 1.0)
+#    ls = LineSymbolizer(stk)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
     r.symbols.append(ls)
 
 #    ps = PolygonSymbolizer()
@@ -281,8 +284,11 @@ def lakes_style():
     ps.fill = Color('#b3e2ee')
     r.symbols.append(ps)
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#4fadc2'), 1.0)
+#    ls = LineSymbolizer(stk)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -300,13 +306,16 @@ def boundaries_style():
     s = Style()
     r = Rule()
 
-    stk = Stroke()
+#    stk = Stroke()
 #    stk.add_dash(8, 4)
 #    stk.add_dash(2, 2)
 #    stk.add_dash(2, 2)
-    stk.color = Color('#808080')
-    stk.width = 1.5
-    ls = LineSymbolizer(stk)
+#    stk.color = Color('#808080')
+#    stk.width = 1.5
+#    ls = LineSymbolizer(stk)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#808080')
+    ls.stroke_width = 1.5
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -332,8 +341,11 @@ def country_style(name, boundary_flag=False):
         r.symbols.append(ps)
 
     if boundary_flag and args.country_border_color:
-        stk = Stroke(Color(args.country_border_color), 1.5)
-        ls = LineSymbolizer(stk)
+#        stk = Stroke(Color(args.country_border_color), 1.5)
+#        ls = LineSymbolizer(stk)
+        ls = LineSymbolizer()
+        ls.stroke = Color(args.country_border_color)
+        ls.stroke_width = 1.5
         r.symbols.append(ls)
 
     s.rules.append(r)
@@ -376,7 +388,9 @@ def tiny_style(name, size=(10,10), offset=None):
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
     ms.opacity = 0.4
-    ms.stroke = Stroke(Color('black'), 0.0)
+#    ms.stroke = Stroke(Color('black'), 0.0)
+    ms.stroke = Color('black')
+    ms.stroke_width = 0.0
     ms.width = Expression('{0}'.format(size[0] * args.scale))
     ms.height = Expression('{0}'.format(size[1] * args.scale))
     if offset:

@@ -296,8 +296,10 @@ def admin_style_with_boundary(admin):
     ps.fill = Color('white')
     r.symbols.append(ps)
 
-    stk = Stroke(Color('#A0A0A0'), 1.0)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#A0A0A0'), 1.0)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#A0A0A0')
+    ls.stroke_width = 1.0
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -315,8 +317,10 @@ def land_boundaries_style():
     s = Style()
     r = Rule()
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#4fadc2'), 1.0)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
     r.symbols.append(ls)
 
 #    ps = PolygonSymbolizer()
@@ -344,8 +348,10 @@ def lakes_style():
     ps.fill = Color('#b3e2ee')
     r.symbols.append(ps)
 
-    stk = Stroke(Color('#4fadc2'), 1.0)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#4fadc2'), 1.0)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -363,14 +369,16 @@ def boundaries_style(admin=None):
     s = Style()
     r = Rule()
 
-    stk = Stroke()
-    stk.color = Color('black')
+    ls = LineSymbolizer()
+    ls.stroke = Color('black')
+#    stk = Stroke()
+#    stk.color = Color('black')
 
     if admin:
         r.filter = Expression("[adm0_left] = '{0}' or [adm0_right] = '{0}'".format(admin))
-        stk.width = 2.0
+        ls.stroke_width = 2.0
     else:
-        stk.width = 1.0
+        ls.stroke_width = 1.0
 
     # stk = Stroke()
     # stk.add_dash(8, 4)
@@ -381,7 +389,7 @@ def boundaries_style(admin=None):
     # ls = LineSymbolizer(stk)
     # r.symbols.append(ls)
 
-    ls = LineSymbolizer(stk)
+#    ls = LineSymbolizer(stk)
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -405,8 +413,10 @@ def region_boundaries_style(admin, region=None):
     
     r.filter = Expression(filter_str)
 
-    stk = Stroke(Color('#808080'), 1.5)
-    ls = LineSymbolizer(stk)
+#    stk = Stroke(Color('#808080'), 1.5)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#808080')
+    ls.stroke_width = 1.5
     r.symbols.append(ls)
 
     s.rules.append(r)
@@ -443,12 +453,16 @@ def region_style(admin, name, code=None, more=[], boundary_flag=False):
         r.symbols.append(ps)
 
     if boundary_flag:
-        stk = Stroke(Color('black'), 1.5)
-        ls = LineSymbolizer(stk)
+#        stk = Stroke(Color('black'), 1.5)
+        ls = LineSymbolizer()
+        ls.stroke = Color('black')
+        ls.stroke_width = 1.5
         r.symbols.append(ls)
     elif more and args.color:
-        stk = Stroke(Color(args.color), 0.5)
-        ls = LineSymbolizer(stk)
+#        stk = Stroke(Color(args.color), 0.5)
+        ls = LineSymbolizer()
+        ls.stroke = Color(args.color)
+        ls.stroke_width = 0.5
         r.symbols.append(ls)
 
     s.rules.append(r)
@@ -472,7 +486,9 @@ def tiny_style(admin, name, code=None, size=(10,10), offset=None):
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
     ms.opacity = 0.4
-    ms.stroke = Stroke(Color('black'), 0.0)
+#    ms.stroke = Stroke(Color('black'), 0.0)
+    ms.stroke = Color('black')
+    ms.stroke_width = 0.0
     ms.width = Expression('{0}'.format(size[0] * args.scale))
     ms.height = Expression('{0}'.format(size[1] * args.scale))
     if offset:
