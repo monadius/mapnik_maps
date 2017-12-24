@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import json
+import plistlib
 
 # Global variables
 
@@ -67,9 +68,6 @@ parser.add_argument('--scale', type=float, default=1.0,
 
 parser.add_argument('--land', action='store_true',
                     help="render the land layer")
-
-parser.add_argument('--test', action='store_true',
-                    help="produce one map only")
 
 parser.add_argument('input_file',
                     help="input JSON data file")
@@ -236,6 +234,22 @@ def cities_layer(names):
     layer.datasource = ds
     return layer
 
+# Features
+
+def get_all_cities(names):
+    ds = Shapefile(file=cities_file)
+    result = {x['NAMEASCII'].encode(): x for x in ds.all_features() if x['NAMEASCII'] in names}
+    diff = set(names) - set(result.keys())
+    for name in diff:
+        print("[WARNING]: bad name: {0}".format(name))
+    return result
+
+def get_projected_coordinates(m, feature):
+    c = feature.geometry.centroid()
+    p = Coord(c.x, c.y)
+    proj = Projection(m.srs)
+    return m.view_transform().forward(proj.forward(p))
+
 # Base map
 
 def base_map(data, width, height):
@@ -309,10 +323,6 @@ add_layer_with_style(m, cities_layer(city_names),
 
 render_to_file(m, os.path.join(args.out, 'a.png'), out_format, args.scale)
 
-if args.test:
-    print("done (test)")
-    exit(0)
-
 def check_name(name):
     if not args.cities:
         return True
@@ -321,13 +331,20 @@ def check_name(name):
             return True
     return False
 
+names = []
 for city in cities:
     name = city.name
     if not check_name(name):
         continue
-#    print("Processing: {0}".format(name))
-#    set_country(m, country)
-#    out_name = os.path.join(args.out, "{0}.png".format(country.out_name))
-#    render_to_file(m, out_name, out_format, args.scale)
+    names.append(name)
+
+features = get_all_cities(names)
+result = []
+
+for name, f in features.iteritems():
+    c = get_projected_coordinates(m, f)
+    result.append({'name': name, 'x': c.x, 'y': c.y})
+
+plistlib.writePlist(result, os.path.join(args.out, 'a.plist'))
 
 print("done")
