@@ -264,51 +264,6 @@ def base_map(data, width, height):
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
-# A map with a cities
-
-def set_country(m, info):
-    style = country_style(info.name, boundary_flag=args.country_only)
-    layer = country_layer(info.name)
-    style_name = 'Style ' + info.name
-    m.append_style(style_name, style)
-    layer.styles.append(style_name)
-
-    if args.country_only:
-        pos = 0
-        max_pos = 0
-    else:
-        pos = 3 if args.top else 1
-        max_pos = 4
-
-    while len(m.layers) > max_pos:
-        del m.layers[pos]
-    
-    m.layers[pos:pos] = layer
-
-    if info.disputed:
-        style = disputed_style(info.disputed, one_color=info.one_color)
-        layer = disputed_layer(info.disputed)
-        style_name = 'Disputed Style ' + info.disputed
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos+1:pos+1] = layer
-
-    if info.extra_disputed:
-        style = disputed_style(info.extra_disputed, one_color=info.one_color)
-        layer = disputed_layer(info.extra_disputed, data_file=countries_file)
-        style_name = 'Extra Disputed Style ' + info.extra_disputed
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos+1:pos+1] = layer
-
-    if info.marker_size and not args.no_markers:
-        style = tiny_style(info.name, size=info.marker_size, offset=info.marker_offset)
-        layer = tiny_layer(info.name)
-        style_name = 'Tiny Style ' + info.name
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos+1:pos+1] = layer
-
 # The main script
 
 from mapnik import *
