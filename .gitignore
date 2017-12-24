@@ -1,6 +1,7 @@
 out*/
 .DS_Store
 *~
+maps_out/
 mapnik/
 
 # Byte-compiled / optimized / DLL files
