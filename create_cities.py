@@ -104,8 +104,11 @@ class CityInfo:
             self.out_name = self.name
 
 cities = []
+cities_dict = {}
 for city in data['cities']:
-    cities.append(CityInfo(city))
+    info = CityInfo(city)
+    cities.append(info)
+    cities_dict[info.name] = info
                 
 # Validate data
 
@@ -209,6 +212,9 @@ def cities_style(names, size=(10,10), offset=None):
     r.filter = Expression(name_filter)
 
     ms = MarkersSymbolizer()
+    ms.allow_overlap = True
+    # ms.max_error = 0
+
     if args.color:
         ms.fill = Color(args.color)
 #        ms.opacity = 0.4
@@ -294,11 +300,23 @@ for city in cities:
     names.append(name)
 
 features = get_all_cities(names)
-result = []
+coords = []
 
 for name, f in features.iteritems():
     c = get_projected_coordinates(m, f)
-    result.append({'name': name, 'x': c.x, 'y': c.y})
+    coords.append({
+        'name': cities_dict[name].out_name,
+        'x': c.x,
+        'y': c.y,
+        'rel_x': c.x / float(width),
+        'rel_y': 1 - c.y / float(height)
+    })
+
+result = {
+    'width': width,
+    'height': height,
+    'cities': coords
+}
 
 plistlib.writePlist(result, os.path.join(args.out, 'a.plist'))
 
