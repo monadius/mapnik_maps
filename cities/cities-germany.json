@@ -1,0 +1,32 @@
+{
+    "name": "CitiesGermany",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [
+        -324983,
+        1932021,
+        375961,
+        2814940
+    ],
+    "xd-size": [
+        700,
+        900
+    ],
+    "cities": [
+        {"name": "Stuttgart", "out": "Baden-c"},
+        {"name": "Munich", "out": "Bavaria-c"},
+        {"name": "Berlin", "out": "Berlin-c"},
+        {"name": "Potsdam", "out": "Brandenburg-c"},
+        {"name": "Bremen", "out": "Bremen-c"},
+        {"name": "Hamburg", "out": "Hamburg-c"},
+        {"name": "Wiesbaden", "out": "Hesse-c"},
+        {"name": "Hannover", "out": "Lower-c"},
+        {"name": "Schwerin", "out": "Mecklenburg-c"},
+        {"name": "Dusseldorf", "out": "North-c"},
+        {"name": "Mainz", "out": "Rhineland-c"},
+        {"name": "Saarbrucken", "out": "Saarland-c"},
+        {"name": "Dresden", "out": "Saxony-c"},
+        {"name": "Magdeburg", "out": "SaxonyAnhalt-c"},
+        {"name": "Kiel", "out": "Schleswig-c"},
+        {"name": "Erfurt", "out": "Thuringia-c"}
+    ]
+}
