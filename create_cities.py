@@ -85,6 +85,9 @@ parser.add_argument('--scale', type=float, default=1.0,
 parser.add_argument('--land', action='store_true',
                     help="render the land layer")
 
+parser.add_argument('--extra',
+                    help="a file with additional cities which are not added to the output plist")
+
 parser.add_argument('input_file',
                     help="input JSON data file")
 
@@ -118,7 +121,7 @@ class CityInfo:
                 if 'marker-offset' in data:
                     self.marker_offset = tuple(data['marker-offset'])
         except UnicodeEncodeError as e:
-            report_error("Bad character in: {0}".format(data))
+            report_error("Bad character in: {0}".format([data]))
             raise e
         if not self.out_name:
             self.out_name = self.name
@@ -129,7 +132,14 @@ for city in data['cities']:
     info = CityInfo(city)
     cities.append(info)
     cities_dict[info.name] = info
-                
+
+extra_cities = []
+if args.extra:
+    with open(args.extra) as f:
+        extra_data = json.load(f)
+    for city in extra_data['cities']:
+        extra_cities.append(CityInfo(city))
+
 # Validate data
 
 if 'xd-size' not in data:
@@ -372,7 +382,7 @@ out_format = 'png256' if args.png8 else 'png'
 
 m = base_map(data, width, height)
 
-city_names = [city.name for city in cities]
+city_names = [city.name for city in cities] + [city.name for city in extra_cities]
 add_layer_with_style(m, cities_layer(city_names), 
                      cities_style(city_names, size=args.marker_size), 'All Cities')
 
