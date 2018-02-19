@@ -14,10 +14,20 @@ phys50m_dir = os.path.join(base_dir, '50m_physical')
 edited50m_dir = os.path.join(base_dir, 'edited50m')
 
 cities_file_50m = os.path.join(cult50m_dir, 'ne_50m_populated_places.shp')
+land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_coastline.shp')
+boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
+lakes_file_50m = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
 
 cities_file_10m = os.path.join(cult10m_dir, 'ne_10m_populated_places.shp')
+land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
+land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
+boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
 countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
+
+lakes_size = 3
 
 def report_error(msg):
     sys.stderr.write("**ERROR**: {0}\n".format(msg))
@@ -134,10 +144,18 @@ xd_width, xd_height = data['xd-size']
 
 if args.use50m:
     cities_file = cities_file_50m
+    land_file = land_file_50m
+    land_boundaries_file = land_boundaries_file_50m
+    boundaries_file = boundaries_file_50m
     countries_file = countries_file_50m
+    lakes_file = lakes_file_50m
 else:
     cities_file = cities_file_10m
+    land_file = land_file_10m
+    land_boundaries_file = land_boundaries_file_10m
+    boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
+    lakes_file = lakes_file_10m
     
 # Validate arguments
 
@@ -189,27 +207,78 @@ def add_layer_with_style(m, layer, style, style_name=None):
     layer.styles.append(style_name)
     m.layers.append(layer)
 
-# Countries
+# Land
 
-def countries_style():
+def land_style():
     s = Style()
     r = Rule()
-
     ps = PolygonSymbolizer()
     ps.fill = Color('#f1daa0')
     r.symbols.append(ps)
-
-    ls = LineSymbolizer()
-    ls.stroke = Color('#808080')
-    ls.stroke_width = 1.0
-    r.symbols.append(ls)
-
     s.rules.append(r)
     return s
 
-def countries_layer():
-    ds = Shapefile(file=countries_file)
-    layer = Layer("Countries")
+def land_layer():
+    ds = Shapefile(file=land_file)
+    layer = Layer('Land')
+    layer.datasource = ds
+    return layer
+
+# Land boundaries
+
+def land_boundaries_style():
+    s = Style()
+    r = Rule()
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
+    r.symbols.append(ls)
+    s.rules.append(r)
+    return s
+
+def land_boundaries_layer():
+    ds = Shapefile(file=land_boundaries_file)
+    layer = Layer('Land Boundaries')
+    layer.datasource = ds
+    return layer
+
+# Lakes
+
+def lakes_style():
+    s = Style()
+    r = Rule()
+    r.filter = Expression("[scalerank] <= {0}".format(lakes_size))
+    ps = PolygonSymbolizer()
+    ps.fill = Color('#b3e2ee')
+    r.symbols.append(ps)
+    ls = LineSymbolizer()
+    ls.stroke = Color('#4fadc2')
+    ls.stroke_width = 1.0
+    r.symbols.append(ls)
+    s.rules.append(r)
+    return s
+
+def lakes_layer():
+    ds = Shapefile(file=lakes_file)
+    layer = Layer('Lakes')
+    layer.datasource = ds
+    return layer
+
+# Boundaries of countries
+
+def boundaries_style():
+    s = Style()
+    r = Rule()
+    ls = LineSymbolizer()
+    ls.stroke = Color('#808080')
+    ls.stroke_width = 1.5
+    r.symbols.append(ls)
+    s.rules.append(r)
+    return s
+
+def boundaries_layer():
+    ds = Shapefile(file=boundaries_file)
+    layer = Layer('Boundaries')
     layer.datasource = ds
     return layer
 
@@ -282,10 +351,15 @@ def base_map(data, width, height):
     m = Map(width, height, data['proj'].encode())
 
     if args.land:
-        add_layer_with_style(m, countries_layer(),
-                             countries_style(), 'Countries Style')
-
-#    m.background = Color('#b3e2ee')
+        m.background = Color('#b3e2ee')
+        add_layer_with_style(m, land_layer(),
+                             land_style(), 'Land Style')
+        add_layer_with_style(m, boundaries_layer(),
+                             boundaries_style(), 'Boundaries Style')
+        add_layer_with_style(m, land_boundaries_layer(),
+                             land_boundaries_style(), 'Land Boundaries Style')
+        add_layer_with_style(m, lakes_layer(),
+                             lakes_style(), 'Lakes Style')
 
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
