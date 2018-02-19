@@ -1,0 +1,28 @@
+{
+    "name": "CitiesCentralAmerica",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [-94,5,-59,30],
+    "xd-size": [1200, 900],
+    "cities": [
+        {"name": "Saint John's", "out": "Antigua-c"},
+        {"name": "Nassau", "out": "Bahamas-c"},
+        {"name": "Bridgetown", "out": "Barbados-c"},
+        {"name": "Belmopan", "out": "Belize-c"},
+        {"name": "San Jose", "out": "Costa-c"},
+        {"name": "Havana", "out": "Cuba-c"},
+        {"name": "Roseau", "out": "Dominica-c"},
+        {"name": "Santo Domingo", "out": "Dominican-c"},
+        {"name": "Saint George's", "out": "Grenada-c"},
+        {"name": "Kingstown", "out": "Grenadines-c"},
+        {"name": "Guatemala", "out": "Guatemala-c"},
+        {"name": "Port-au-Prince", "out": "Haiti-c"},
+        {"name": "Tegucigalpa", "out": "Honduras-c"},
+        {"name": "Kingston", "out": "Jamaica-c"},
+        {"name": "Castries", "out": "Lucia-c"},
+        {"name": "Basseterre", "out": "Nevis-c"},
+        {"name": "Managua", "out": "Nicaragua-c"},
+        {"name": "Panama City", "out": "Panama-c"},
+        {"name": "San Salvador", "out": "Salvador-c"},
+        {"name": "Port-of-Spain", "out": "Trinidad-c"}
+    ]
+}

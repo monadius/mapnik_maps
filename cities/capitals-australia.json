@@ -1,0 +1,32 @@
+{
+    "name": "Australia",
+    "proj": "+proj=lcc +lat_1=-18 +lat_2=-36 +lat_0=-27 +lon_0=132 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+    "bbox": [
+        -2310855,
+        -4586868,
+        10587388,
+        5635248
+    ],
+    "xd-size": [
+        1200,
+        900
+    ],
+    "cities": [
+        {"name": "Canberra", "out": "Australia-c"},
+        {"name": "Suva", "out": "Fiji-c"},
+        {"name": "Tarawa", "out": "Kiribati-c"},
+        {"name": "Majuro", "out": "Marshall-c"},
+        {"name": "Palikir", "out": "Federated-c"},
+        {"name": "Wellington", "out": "New-c"},
+        {"name": "Melekeok", "altname": "Ngerulmud", "out": "Palau-c"},
+        {"name": "Port Moresby", "out": "Papua-c"},
+        {"name": "Apia", "out": "Samoa-c"},
+        {"name": "Honiara", "out": "Solomon-c"},
+        {"name": "Nukualofa", "out": "Tonga-c"},
+        {"name": "Funafuti", "out": "Tuvalu-c"},
+        {"name": "Port-Vila", "out": "Vanuatu-c"}
+    ],
+    "unused": [
+        {"name": "Yaren", "out": "Nauru-c"}
+    ]
+}

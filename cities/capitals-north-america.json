@@ -1,0 +1,11 @@
+{
+    "name": "CitiesNorthAmerica",
+    "proj": "+proj=lcc +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
+    "bbox": [-6248508,-3237996,3510660,5827786],
+    "xd-size": [950, 900],
+    "cities": [
+        {"name": "Ottawa", "out": "Canada-c"},
+        {"name": "Mexico City", "out": "Mexico-c"},
+        {"name": "Washington, D.C.", "out": "United-c"}
+    ]
+}
