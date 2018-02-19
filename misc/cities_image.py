@@ -74,7 +74,7 @@ for city in cities:
             print("Bad pixel value: ({0}, {1}) {2}".format(x, y, name))
         else:
             canvas.putpixel((x, y), (255, 0, 0, 255))
-            d.ellipse([x - 1, y - 1, x + 1, y + 1], fill=(120, 0, 0, 255))
+            d.ellipse([x - 1, y - 1, x + 1, y + 1], fill=args.color)
     except:
         print("[ERROR]: ({0}, {1})".format(x, y))
 

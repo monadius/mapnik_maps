@@ -45,19 +45,25 @@ data_group.add_argument('--50m', dest='use50m', action='store_true',
 data_group.add_argument('--10m', dest='use10m', action='store_true',
                         help="use 10m data (default)")
 
+parser.add_argument('--capitals', action='store_true',
+                    help="select capitals only")
+
+parser.add_argument('--region-capitals', action='store_true',
+                    help="select regional capitals only")
+
 parser.add_argument('--png8', action='store_true',
                     help="8-bit PNG images")
 
 parser.add_argument('--out', metavar='DIR',
                     help="the output directory")
 
-parser.add_argument('--color', default='red',
+parser.add_argument('--color', default='white',
                     help="fill color for cities (use 'none' for no color)")
 
-parser.add_argument('--marker-size', type=float, default=10.0,
+parser.add_argument('--marker-size', type=float, default=8.0,
                     help="marker size for cities")
 
-parser.add_argument('--border', type=float, default=0.5,
+parser.add_argument('--border', type=float, default=1.8,
                     help="marker border width for cities (0 = no border)")
 
 parser.add_argument('--border-color', default='black',
@@ -84,22 +90,26 @@ with open(args.input_file) as f:
 
 class CityInfo:
     def __init__(self, data):
-        self.marker_size = None
-        self.marker_offset = None
-        self.out_name = None
-        if isinstance(data, unicode):
-            self.name = data.encode()
-        elif isinstance(data, str):
-            self.name = data
-        else:
-            assert(isinstance(data, dict))
-            self.name = data['name'].encode()
-            if 'out' in data:
-                self.out_name = data['out'].encode()
-            if 'marker-size' in data:
-                self.marker_size = tuple(data['marker-size'])
-            if 'marker-offset' in data:
-                self.marker_offset = tuple(data['marker-offset'])
+        try:
+            self.marker_size = None
+            self.marker_offset = None
+            self.out_name = None
+            if isinstance(data, unicode):
+                self.name = data.encode()
+            elif isinstance(data, str):
+                self.name = data
+            else:
+                assert(isinstance(data, dict))
+                self.name = data['name'].encode()
+                if 'out' in data:
+                    self.out_name = data['out'].encode()
+                if 'marker-size' in data:
+                    self.marker_size = tuple(data['marker-size'])
+                if 'marker-offset' in data:
+                    self.marker_offset = tuple(data['marker-offset'])
+        except UnicodeEncodeError as e:
+            report_error("Bad character in: {0}".format(data))
+            raise e
         if not self.out_name:
             self.out_name = self.name
 
@@ -167,6 +177,9 @@ if not args.out:
 if not os.path.exists(args.out):
     os.makedirs(args.out)
 
+def escape(s):
+    return s.replace("'", "\\'").replace('"', '\\"')
+
 # Styles and layers
 
 def add_layer_with_style(m, layer, style, style_name=None):
@@ -208,7 +221,11 @@ def cities_style(names, size=(10,10), offset=None):
     if isinstance(size, float) or isinstance(size, int):
         size = (size, size)
 
-    name_filter = " or ".join(["[NAMEASCII] = '{0}'".format(name) for name in names])
+    name_filter = " or ".join(["[NAMEASCII] = '{0}'".format(escape(name)) for name in names])
+    if args.capitals:
+        name_filter = "([FEATURECLA] = 'Admin-0 capital' or [FEATURECLA] = 'Admin-0 capital alt') and ({0})".format(name_filter)
+    if args.region_capitals:
+        name_filter = "[FEATURECLA] = 'Admin-1 capital' and ({0})".format(name_filter)
     r.filter = Expression(name_filter)
 
     ms = MarkersSymbolizer()
@@ -244,7 +261,10 @@ def cities_layer(names):
 
 def get_all_cities(names):
     ds = Shapefile(file=cities_file)
-    result = {x['NAMEASCII'].encode(): x for x in ds.all_features() if x['NAMEASCII'] in names}
+    result = {x['NAMEASCII'].encode(): x for x in ds.all_features() 
+                if x['NAMEASCII'] in names
+                if not args.capitals or x['FEATURECLA'].startswith('Admin-0 capital')
+                if not args.region_capitals or x['FEATURECLA'] == 'Admin-1 capital'}
     diff = set(names) - set(result.keys())
     for name in diff:
         print("[WARNING]: bad name: {0}".format(name))
