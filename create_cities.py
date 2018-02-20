@@ -85,8 +85,8 @@ parser.add_argument('--scale', type=float, default=1.0,
 parser.add_argument('--land', action='store_true',
                     help="render the land layer")
 
-parser.add_argument('--extra',
-                    help="a file with additional cities which are not added to the output plist")
+parser.add_argument('--extra', nargs='*',
+                    help="files with additional cities which are not added to the output plist")
 
 parser.add_argument('input_file',
                     help="input JSON data file")
@@ -134,11 +134,15 @@ for city in data['cities']:
     cities_dict[info.name] = info
 
 extra_cities = []
-if args.extra:
-    with open(args.extra) as f:
-        extra_data = json.load(f)
-    for city in extra_data['cities']:
-        extra_cities.append(CityInfo(city))
+if args.extra != None:
+    if 'extra' in data:
+        for city in data['extra']:
+            extra_cities.append(CityInfo(city))
+    for fname in args.extra:
+        with open(fname) as f:
+            extra_data = json.load(f)
+        for city in extra_data['cities']:
+            extra_cities.append(CityInfo(city))
 
 # Validate data
 
@@ -382,7 +386,7 @@ out_format = 'png256' if args.png8 else 'png'
 
 m = base_map(data, width, height)
 
-city_names = [city.name for city in cities] + [city.name for city in extra_cities]
+city_names = set([city.name for city in cities]) | set([city.name for city in extra_cities])
 add_layer_with_style(m, cities_layer(city_names), 
                      cities_style(city_names, size=args.marker_size), 'All Cities')
 
