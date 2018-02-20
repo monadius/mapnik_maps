@@ -1,9 +1,9 @@
 {
-    "name": "CitiesEastAsia",
+    "name": "CapitalsEastAsia",
     "proj": "+proj=mill +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +R_A +datum=WGS84 +units=m +no_defs",
-    "bbox": [5016064,-1687689,16769353,7611505],
-    "bbox2": [7681040,-1896220,18855995,6960155],
-    "xd-size": [1200, 900],
+    "bbox0": [5016064,-1687689,16769353,7611505],
+    "bbox": [6029549,-1084985,16839889,7349659],
+    "xd-size": [1104, 900],
     "cities": [
         {"name": "Bandar Seri Begawan", "out": "Brunei-c"},
         {"name": "Naypyidaw", "out": "Burma-c"},

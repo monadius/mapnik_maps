@@ -1,8 +1,10 @@
 {
-    "name": "CitiesNorthAmerica",
+    "name": "CapitalsNorthAmerica",
     "proj": "+proj=lcc +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
-    "bbox": [-6248508,-3237996,3510660,5827786],
-    "xd-size": [950, 900],
+    "bbox0": [-6248508,-3237996,3510660,5827786],
+    "bbox1": [-5580124,-4276728,5820708,4618640],
+    "bbox": [-6250190,-4325284,5150642,4570085],
+    "xd-size": [1104, 900],
     "cities": [
         {"name": "Ottawa", "out": "Canada-c"},
         {"name": "Mexico City", "out": "Mexico-c"},

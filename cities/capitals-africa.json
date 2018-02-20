@@ -1,8 +1,8 @@
 {
-    "name": "CitiesAfrica",
+    "name": "CapitalsAfrica",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [-27,-38,60,42],
-    "xd-size": [1000, 900],
+    "xd-size": [1104, 900],
     "cities": [
         {"name": "Algiers", "out": "Algeria-c"},
         {"name": "Luanda", "out": "Angola-c"},

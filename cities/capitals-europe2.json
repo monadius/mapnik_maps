@@ -1,5 +1,5 @@
 {
-    "name": "CitiesEurope",
+    "name": "CapitalsEurope",
     "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
     "bbox": [
         -1820064,
@@ -7,11 +7,13 @@
         3299252,
         4755273
     ],
+    "bbox1": [-2720291,647741,2309483,4572163],
     "xd-size": [
-        1080,
+        1104,
         900
     ],
     "cities": [
+        {"name": "Ankara", "out": "Turkey-c"},
         {"name": "Tirana", "out": "Albania-c"},
         {"name": "Andorra", "out": "Andorra-c"},
         {"name": "Vienna", "out": "Austria-c"},

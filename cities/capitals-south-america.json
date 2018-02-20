@@ -1,8 +1,8 @@
 {
-    "name": "CitiesSouthAmerica",
+    "name": "CapitalsSouthAmerica",
     "proj": "+proj=eqdc +lat_0=-32 +lon_0=-60 +lat_1=-5 +lat_2=-42 +x_0=0 +y_0=0 +ellps=aust_SA +units=m +no_defs",
     "bbox": [-3655842,-2854423, 2891922,5205039],
-    "xd-size": [950, 900],
+    "xd-size": [1104, 900],
     "cities": [
         {"name": "Buenos Aires", "out": "Argentina-c"},
         {"name": "Sucre", "out": "Bolivia-c"},
@@ -16,5 +16,14 @@
         {"name": "Paramaribo", "out": "Suriname-c"},
         {"name": "Montevideo", "out": "Uruguay-c"},
         {"name": "Caracas", "out": "Venezuela-c"}
+    ],
+    "extra": [
+        {"name": "Belmopan", "out": "Belize-c"},
+        {"name": "San Jose", "out": "Costa-c"},
+        {"name": "Guatemala", "out": "Guatemala-c"},
+        {"name": "Tegucigalpa", "out": "Honduras-c"},
+        {"name": "Managua", "out": "Nicaragua-c"},
+        {"name": "Panama City", "out": "Panama-c"},
+        {"name": "San Salvador", "out": "Salvador-c"}
     ]
 }

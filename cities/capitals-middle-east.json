@@ -1,9 +1,10 @@
 {
-    "name": "CitiesMiddleEast",
+    "name": "CapitalsMiddleEast",
     "proj": "+proj=lcc +lat_1=32.5 +lat_0=32.5 +lon_0=45 +k_0=0.9987864078000001 +x_0=1500000 +y_0=1166200 +ellps=clrk80 +units=m +no_defs",
-    "bbox": [-331270,-1032138,3689279,2381606],
+    "bbox0": [-331270,-1032138,3689279,2381606],
     "bbox2": [-1519864,-1571527,4541157,3231954],
-    "xd-size": [1000, 900],
+    "bbox": [-325494,-1086067,4049763,2327677],
+    "xd-size": [1104, 900],
     "cities": [
         {"name": "Yerevan", "out": "Armenia-c"},
         {"name": "Baku", "out": "Azerbaijan-c"},
@@ -20,7 +21,6 @@
         {"name": "Doha", "out": "Qatar-c"},
         {"name": "Riyadh", "out": "SaudiArabia-c"},
         {"name": "Damascus", "out": "Syria-c"},
-        {"name": "Ankara", "out": "Turkey-c"},
         {"name": "Sanaa", "out": "Yemen-c"}
     ],
     "unused": [
