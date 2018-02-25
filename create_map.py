@@ -28,7 +28,7 @@ boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_l
 countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
-disputed_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_breakaway_disputed_areas.shp')
+disputed_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_disputed_areas.shp')
 #tiny_file = os.path.join(cult50m_dir, 'ne_50m_admin_0_tiny_countries.shp')
 
 tiny_file = countries_file_50m
@@ -126,11 +126,16 @@ class CountryInfo:
             if 'out' in data:
                 self.out_name = data['out'].encode()
             if 'disputed' in data:
-                self.disputed = data['disputed'].encode()
+                disputed = data['disputed']
+                if isinstance(disputed, unicode) or isinstance(disputed, str):
+                    disputed = [disputed]
+                self.disputed = [s.encode() for s in disputed]
             if 'extra-disputed' in data:
                 self.extra_disputed = data['extra-disputed'].encode()
             if 'one-color' in data:
                 self.one_color = data['one-color']
+            if 'disputed-boundary' in data:
+                self.diputed_boundary = data['disputed-boundary']
             if 'marker-size' in data:
                 self.marker_size = tuple(data['marker-size'])
             if 'marker-offset' in data:
@@ -357,11 +362,11 @@ def country_layer(name):
     layer.datasource = ds
     return layer
 
-def disputed_style(name, one_color=False):
+def disputed_style(names, one_color=False, boundary=False):
     s = Style()
     r = Rule()
 
-    r.filter = Expression("[name] = '{0}'".format(name))
+    r.filter = Expression(" or ".join("[name] = '{0}'".format(name) for name in names))
 
     ps = PolygonSymbolizer()
     if one_color and args.color:
@@ -369,6 +374,12 @@ def disputed_style(name, one_color=False):
     else:
         ps.fill = Color('#f76d50')
     r.symbols.append(ps)
+
+    if boundary:
+        ls = LineSymbolizer()
+        ls.stroke = ps.fill
+        ls.stroke_width = 1.5
+        r.symbols.append(ls)
 
     s.rules.append(r)
     return s
@@ -388,13 +399,19 @@ def tiny_style(name, size=(10,10), offset=None):
     ms = MarkersSymbolizer()
     ms.fill = Color('red')
     ms.opacity = 0.4
+
 #    ms.stroke = Stroke(Color('black'), 0.0)
-    ms.stroke = Color('black')
-    ms.stroke_width = 0.0
+#    ms.stroke = Color('black')
+    # ms.stroke_width = 0.0
+
     ms.width = Expression('{0}'.format(size[0] * args.scale))
     ms.height = Expression('{0}'.format(size[1] * args.scale))
     if offset:
-        ms.transform = 'translate({0}, {1})'.format(offset[0] * offset_scale_x, offset[1] * offset_scale_y)
+         ms.transform = 'translate({0}, {1})'.format(offset[0] * offset_scale_x, offset[1] * offset_scale_y)
+    # ms.transform does not work in Mapnik 3 even if a file is provided
+    # ms.file = 'tiny.svg'
+    # ms.transform='translate(100,0)'
+    # TODO: create an xml file with a complete map and render it
     r.symbols.append(ms)
 
     s.rules.append(r)
@@ -452,15 +469,15 @@ def set_country(m, info):
     m.layers[pos:pos] = layer
 
     if info.disputed:
-        style = disputed_style(info.disputed, one_color=info.one_color)
-        layer = disputed_layer(info.disputed)
-        style_name = 'Disputed Style ' + info.disputed
+        style = disputed_style(info.disputed, one_color=info.one_color, boundary=info.diputed_boundary)
+        layer = disputed_layer('-'.join(info.disputed))
+        style_name = 'Disputed Style ' + '-'.join(info.disputed)
         m.append_style(style_name, style)
         layer.styles.append(style_name)
         m.layers[pos+1:pos+1] = layer
 
     if info.extra_disputed:
-        style = disputed_style(info.extra_disputed, one_color=info.one_color)
+        style = disputed_style(info.extra_disputed, one_color=info.one_color, boundary=info.diputed_boundary)
         layer = disputed_layer(info.extra_disputed, data_file=countries_file)
         style_name = 'Extra Disputed Style ' + info.extra_disputed
         m.append_style(style_name, style)

@@ -4,7 +4,7 @@
     "bbox": [-952104,-1684964,6905993,4542736],
     "xd-size": [1200, 900],
     "countries": [
-        "India",
+        {"name": "India", "disputed": ["Kashmir", "Aksai Chin"], "disputed-boundary": true},
         "Pakistan",
         "China"
     ]

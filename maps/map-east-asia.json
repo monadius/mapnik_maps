@@ -30,7 +30,7 @@
         "Afghanistan",
         "Bangladesh",
         "Bhutan",
-        "India",
+        {"name": "India", "disputed": ["Kashmir", "Aksai Chin"], "disputed-boundary": true},
         {"name": "Maldives", "marker-size": [30, 100]},
         "Nepal",
         "Pakistan",
