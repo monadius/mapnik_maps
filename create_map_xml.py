@@ -10,7 +10,7 @@ from mapnik_xml import *
 this_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 base_dir = '/Users/monad/Work/data'
 
-marker_file = os.path.join(this_dir, "tiny.svg")
+marker_file = os.path.join(this_dir, "marker.svg")
 
 cult10m_dir = os.path.join(base_dir, '10m_cultural', '10m_cultural')
 phys10m_dir = os.path.join(base_dir, '10m_physical')
@@ -31,8 +31,6 @@ countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
 disputed_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_disputed_areas.shp')
-
-lakes_size = 3
 
 def report_error(msg):
     print("**ERROR**: {0}\n".format(msg), file=sys.stderr)
@@ -72,6 +70,9 @@ parser.add_argument('--color', default='red',
 #parser.add_argument('--line-color', default='black',
 #                    help="border line color (use 'none' for no borders)")
 
+parser.add_argument('--lakes-size', type=int, default=3,
+                    help="scale rank of rendered lakes (set a negative value for no lakes)")
+
 parser.add_argument('--scale', type=float, default=1.0,
                     help="scale for lines")
 
@@ -80,6 +81,9 @@ parser.add_argument('--no-markers', action='store_true',
 
 parser.add_argument('--top', action='store_true',
                     help="move the country layer above the land boundary layer")
+
+parser.add_argument('--dependent', action='store_false', default=True,
+                    help="color countries with their dependent territories")
 
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
@@ -113,6 +117,7 @@ class CountryInfo:
     def __init__(self, data):
         self.disputed = None
         self.extra_disputed = None
+        self.disputed_boundary = None
         self.one_color = False
         self.marker_size = None
         self.marker_offset = None
@@ -136,7 +141,7 @@ class CountryInfo:
             if 'one-color' in data:
                 self.one_color = data['one-color']
             if 'disputed-boundary' in data:
-                self.diputed_boundary = data['disputed-boundary']
+                self.disputed_boundary = data['disputed-boundary']
             if 'marker-size' in data:
                 self.marker_size = tuple(data['marker-size'])
             if 'marker-offset' in data:
@@ -172,6 +177,11 @@ else:
     boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
     lakes_file = lakes_file_10m
+
+if args.dependent:
+    country_filter_template = "[name] = '{0}' or [admin] = '{0}' or [sovereignt] = '{0}'"
+else:
+    country_filter_template = "[name] = '{0}' or [admin] = '{0}'"
     
 # Validate arguments
 
@@ -244,7 +254,7 @@ def land_boundaries_layer():
 
 def lakes_layer():
     s = Style("Lakes")
-    s.filter = "[scalerank] <= {}".format(lakes_size)
+    s.filter = "[scalerank] <= {}".format(args.lakes_size)
     s.symbols.append(PolygonSymbolizer("#b3e2ee"))
     s.symbols.append(LineSymbolizer("#4fadc2", 1.0))
     return Layer("Lakes", lakes_file, s)
@@ -260,7 +270,7 @@ def boundaries_layer():
 
 def country_layer(name, boundary_flag=False):
     s = Style("Country " + name)
-    s.filter = "[admin] = '{0}' or [sovereignt] = '{0}'".format(name)
+    s.filter = country_filter_template.format(name)
     if args.color:
         s.symbols.append(PolygonSymbolizer(args.color))
     if boundary_flag and args.country_border_color:
@@ -279,20 +289,20 @@ def disputed_layer(names, one_color=False, boundary=False, data_file=disputed_fi
         s.symbols.append(LineSymbolizer(ps.fill, 1.5))
     return Layer(name, data_file, s)
 
-def tiny_layer(name, size=(10,10), offset=None):
-    s = Style("Tiny " + name)
-    s.filter = "[name] = '{0}' or [sovereignt] = '{0}'".format(name)
+def marker_layer(name, size=(10,10), offset=None):
+    s = Style("Marker " + name)
+    s.filter = country_filter_template.format(name)
     ms = MarkersSymbolizer(marker_file)
     ms.opacity = 0.4
-    ms.scale = (size[0] * args.scale, size[1] * args.scale)
+    ms.scale = (size[0] * args.scale / 100.0, size[1] * args.scale / 100.0)
     if offset:
          ms.translation = (offset[0] * offset_scale_x, offset[1] * offset_scale_y)
     s.symbols.append(ms)
-    return Layer("Tiny " + name, tiny_file, s)
+    return Layer("Marker " + name, countries_file, s)
 
 # Base map
 
-def base_map(data, width, height):
+def create_base_map(data, width, height):
     m = Map(width, height, data["proj"].encode(), data["bbox"])
     if args.land_only:
         m.layers.append(land_layer())
@@ -308,38 +318,43 @@ def base_map(data, width, height):
 
 # A map with a country
 
-def set_country(m, info):
+def add_country_layers(m, info):
     layer = country_layer(info.name, boundary_flag=args.country_only)
-
-    if args.country_only:
-        pos = 0
-        max_pos = 0
-    else:
-        pos = 3 if args.top else 1
-        max_pos = 4
-
-    while len(m.layers) > max_pos:
-        del m.layers[pos]
-    
-    m.layers.insert(pos, layer)
-
+    m.layers.append(layer)
     if info.disputed:
-        layer = disputed_layer(info.disputed, one_color=info.one_color, boundary=info.diputed_boundary)
-        m.layers.insert(pos + 1, layer)
-
+        layer = disputed_layer(info.disputed, one_color=info.one_color, boundary=info.disputed_boundary)
+        m.layers.append(layer)
     if info.extra_disputed:
-        layer = disputed_layer(info.extra_disputed, one_color=info.one_color, boundary=info.diputed_boundary, data_file=countries_file)
-        m.layers.insert(pos + 1, layer)
-
+        layer = disputed_layer(info.extra_disputed, one_color=info.one_color, boundary=info.disputed_boundary, data_file=countries_file)
+        m.layers.append(layer)
     if info.marker_size and not args.no_markers:
-        layer = tiny_layer(info.name, size=info.marker_size, offset=info.marker_offset)
-        m.layers.insert(pos + 1, layer)
+        layer = marker_layer(info.name, size=info.marker_size, offset=info.marker_offset)
+        m.layers.append(layer)
+
+def create_map(data, width, height, info):
+    m = Map(width, height, data["proj"].encode(), data["bbox"])
+    if args.land_only:
+        m.layers.append(land_layer())
+        add_country_layers(m, info)
+    elif args.country_only:
+        add_country_layers(m, info)
+    else:
+        m.background = "#b3e2ee"
+        m.layers.append(land_layer())
+        if not args.top:
+            add_country_layers(m, info)
+        m.layers.append(boundaries_layer())
+        m.layers.append(land_boundaries_layer())
+        if args.top:
+            add_country_layers(m, info)
+        m.layers.append(lakes_layer())
+    return m
 
 # The main script
 
 out_format = "png256" if args.png8 else "png"
 
-m = base_map(data, width, height)
+m = create_base_map(data, width, height)
 render_map(m, os.path.join(args.out, "a.png"), 
            out_format=out_format, scale=args.scale, debug=args.debug)
 
@@ -360,7 +375,7 @@ for country in countries:
     if not check_name(name):
         continue
     print("Processing: {0}".format(name))
-    set_country(m, country)
+    m = create_map(data, width, height, country)
     out_name = os.path.join(args.out, "{0}.png".format(country.out_name))
     render_map(m, out_name, out_format=out_format, scale=args.scale, debug=args.debug)
 
