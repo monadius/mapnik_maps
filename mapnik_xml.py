@@ -2,9 +2,6 @@ from __future__ import print_function
 import sys
 import os
 import xml.etree.ElementTree as ET
-import xml.dom.minidom as DOM
-
-TMP_DIR = "tmp"
 
 def set_attrib(element, name, attrib):
     if attrib:
@@ -15,15 +12,19 @@ def eprint(*args, **kwargs):
 
 
 class Map:
-    def __init__(self, proj):
+    def __init__(self, width, height, proj, bbox):
         self.proj = proj
+        self.width = width
+        self.height = height
+        self.bbox = bbox
         self.background = None
         self.layers = []
 
     def write_xml(self, fname):
+        import xml.dom.minidom
         root = self.to_xml()
         with open(fname, "w") as f:
-            xml = DOM.parseString(ET.tostring(root)).toprettyxml()
+            xml = xml.dom.minidom.parseString(ET.tostring(root)).toprettyxml()
             f.write(xml)
 
     def to_xml(self):
@@ -55,7 +56,7 @@ class Layer:
         self.styles = [style] if style else []
 
     def to_xml(self):
-        layer = ET.Element("Layer", name=self.name)
+        layer = ET.Element("Layer", name=self.name, srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
         for style in self.styles:
             ET.SubElement(layer, "StyleName").text = style.name
         ds = ET.SubElement(layer, "Datasource")
@@ -99,6 +100,7 @@ class LineSymbolizer:
         set_attrib(el, "stroke-dasharray", " ".join(",".join(map(str, d)) for d in self.dashes))
         return el
 
+
 class PolygonSymbolizer:
     def __init__(self, fill):
         self.fill = fill
@@ -113,7 +115,7 @@ class PolygonSymbolizer:
 
 class MarkersSymbolizer:
     def __init__(self, file):
-        self.file = file
+        self.file = os.path.abspath(file)
         self.opacity = 1.0
         self.scale = None
         self.translation = None
@@ -137,15 +139,12 @@ class MarkersSymbolizer:
         return el
 
 
-def render_map(map_obj, width, height, bbox, out_fname, out_format='png', scale=1.0):
+def render_map(map_obj, out_fname, out_format='png', scale=1.0, debug=False):
     import mapnik
-    if not os.path.exists(TMP_DIR):
-        os.makedirs(TMP_DIR)
-    tmp_xml = os.path.join(TMP_DIR, "out.xml")
-    map_obj.write_xml(tmp_xml)
-
-    m = mapnik.Map(width, height)
-    mapnik.load_map(m, tmp_xml)
-    m.zoom_to_box(mapnik.Box2d(*bbox))
+    if debug:
+        map_obj.write_xml("a.xml")
+    m = mapnik.Map(map_obj.width, map_obj.height, map_obj.proj)
+    mapnik.load_map_from_string(m, ET.tostring(map_obj.to_xml()))
+    m.zoom_to_box(mapnik.Box2d(*map_obj.bbox))
     mapnik.render_to_file(m, out_fname, out_format, scale)
 
