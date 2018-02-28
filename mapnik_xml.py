@@ -39,6 +39,7 @@ class Map:
 
         root = ET.Element("Map", srs=self.proj)
         set_attrib(root, "background-color", self.background)
+        set_attrib(root, "maximum-extent", ",".join(map(str, self.bbox)))
        
         for style in styles:
             root.append(styles[style].to_xml())
@@ -145,6 +146,6 @@ def render_map(map_obj, out_fname, out_format='png', scale=1.0, debug=False):
         map_obj.write_xml("a.xml")
     m = mapnik.Map(map_obj.width, map_obj.height, map_obj.proj)
     mapnik.load_map_from_string(m, ET.tostring(map_obj.to_xml()))
-    m.zoom_to_box(mapnik.Box2d(*map_obj.bbox))
+    m.zoom_all()
     mapnik.render_to_file(m, out_fname, out_format, scale)
 

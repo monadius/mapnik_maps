@@ -113,14 +113,20 @@ args = parser.parse_args()
 with open(args.input_file) as f:
     data = json.load(f)
 
+class Marker:
+    def __init__(self, data):
+        self.size = data.get('marker-size')
+        self.rotation = data.get('marker-rotation')
+        self.offset = data.get('marker-offset')
+        self.center = data.get('marker-center')
+
 class CountryInfo:
     def __init__(self, data):
         self.disputed = None
         self.extra_disputed = None
         self.disputed_boundary = None
         self.one_color = False
-        self.marker_size = None
-        self.marker_offset = None
+        self.markers = []
         self.out_name = None
         if isinstance(data, unicode):
             self.name = data.encode()
@@ -142,12 +148,14 @@ class CountryInfo:
                 self.one_color = data['one-color']
             if 'disputed-boundary' in data:
                 self.disputed_boundary = data['disputed-boundary']
-            if 'marker-size' in data:
-                self.marker_size = tuple(data['marker-size'])
-            if 'marker-offset' in data:
-                self.marker_offset = tuple(data['marker-offset'])
+            if 'markers' in data:
+                for marker in data['markers']:
+                    self.markers.append(Marker(marker))
+            elif 'marker-size' in data:
+                self.markers.append(Marker(data))
         if not self.out_name:
             self.out_name = self.name
+
 
 countries = []
 for country in data['countries']:
@@ -201,8 +209,8 @@ elif args.size:
 else:
     width, height = xd_width, xd_height
 
-offset_scale_x = float(width) / xd_width
-offset_scale_y = float(height) / xd_height
+marker_scale_x = float(width) / (xd_width * args.scale)
+marker_scale_y = float(height) / (xd_height * args.scale)
 
 if args.color == 'none':
     args.color = None
@@ -289,16 +297,20 @@ def disputed_layer(names, one_color=False, boundary=False, data_file=disputed_fi
         s.symbols.append(LineSymbolizer(ps.fill, 1.5))
     return Layer(name, data_file, s)
 
-def marker_layer(name, size=(10,10), offset=None):
-    s = Style("Marker " + name)
+def marker_layer(name, marker, layer_name=None):
+    if not layer_name:
+        layer_name = "Marker " + name
+    s = Style(layer_name)
     s.filter = country_filter_template.format(name)
     ms = MarkersSymbolizer(marker_file)
     ms.opacity = 0.4
-    ms.scale = (size[0] * args.scale / 100.0, size[1] * args.scale / 100.0)
-    if offset:
-         ms.translation = (offset[0] * offset_scale_x, offset[1] * offset_scale_y)
+    ms.scale = (marker.size[0] * marker_scale_x / 100.0, marker.size[1] * marker_scale_y / 100.0)
+    if marker.rotation:
+        ms.rotation = marker.rotation
+    if marker.offset:
+         ms.translation = (marker.offset[0] * marker_scale_x, marker.offset[1] * marker_scale_y)
     s.symbols.append(ms)
-    return Layer("Marker " + name, countries_file, s)
+    return Layer(layer_name, countries_file, s)
 
 # Base map
 
@@ -322,14 +334,18 @@ def add_country_layers(m, info):
     layer = country_layer(info.name, boundary_flag=args.country_only)
     m.layers.append(layer)
     if info.disputed:
-        layer = disputed_layer(info.disputed, one_color=info.one_color, boundary=info.disputed_boundary)
+        layer = disputed_layer(info.disputed, one_color=info.one_color,
+                               boundary=info.disputed_boundary)
         m.layers.append(layer)
     if info.extra_disputed:
-        layer = disputed_layer(info.extra_disputed, one_color=info.one_color, boundary=info.disputed_boundary, data_file=countries_file)
+        layer = disputed_layer(info.extra_disputed, one_color=info.one_color,
+                               boundary=info.disputed_boundary, data_file=countries_file)
         m.layers.append(layer)
-    if info.marker_size and not args.no_markers:
-        layer = marker_layer(info.name, size=info.marker_size, offset=info.marker_offset)
-        m.layers.append(layer)
+    if info.markers and not args.no_markers:
+        for i, marker in enumerate(info.markers):
+            name = marker.center if marker.center else info.name
+            layer = marker_layer(name, marker, layer_name="Marker " + info.name + str(i))
+            m.layers.append(layer)
 
 def create_map(data, width, height, info):
     m = Map(width, height, data["proj"].encode(), data["bbox"])

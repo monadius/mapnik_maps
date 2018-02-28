@@ -16,30 +16,28 @@
 		{
 			"name": "Federated States of Micronesia",
 			"out": "Federated",
-			"marker-size": [
-				80,
-				80
-			],
-			"marker-offset": [
-				0,
-				10
-			]
+			"marker-size": [310, 130],
+			"marker-rotation": 15,
+			"marker-offset": [-40, -70]
 		},
 		{
 			"name": "Fiji",
-			"marker-size": [80, 80],
-			"marker-offset": [50, -20]
+			"marker-size": [95, 110],
+			"marker-offset": [35, -30]
 		},
 		{
 			"name": "Kiribati",
-			"marker-size": [70, 110],
-			"marker-offset": [0, -20]
+			"markers": [
+				{"marker-center": "Nauru", "marker-size": [93, 105], "marker-offset": [65, 18]},
+				{"marker-center": "Nauru", "marker-size": [65, 60], "marker-offset": [195, 113]},
+				{"marker-center": "Nauru", "marker-size": [83, 212], "marker-offset": [346, 188]}
+			]
 		},
 		{
 			"name": "Marshall Islands",
 			"out": "Marshall",
 			"marker-size": [100, 150],
-			"marker-offset": [0, -45]
+			"marker-offset": [15, -55]
 		},
 		{
 			"name": "Nauru",
@@ -52,7 +50,7 @@
 		{
 			"name": "Palau",
 			"marker-size": [80, 85],
-			"marker-offset": [20, -25]
+			"marker-offset": [12, -25]
 		},
 		{
 			"name": "Papua New Guinea",
@@ -67,16 +65,17 @@
 			"name": "Solomon Islands",
 			"out": "Solomon",
 			"marker-size": [140, 110],
-			"marker-offset": [-48, -35]
+			"marker-offset": [-65, -45]
 		},
 		{
 			"name": "Tonga",
-			"marker-size": [50, 75],
-			"marker-offset": [-10, -5]
+			"marker-size": [40, 75],
+			"marker-offset": [22, -32]
 		},
 		{
 			"name": "Tuvalu",
-			"marker-size": [100, 100]
+			"marker-size": [65, 85],
+			"marker-offset": [-9, -23]
 		},
 		{
 			"name": "Vanuatu",
