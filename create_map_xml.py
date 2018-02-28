@@ -83,7 +83,7 @@ parser.add_argument('--top', action='store_true',
                     help="move the country layer above the land boundary layer")
 
 parser.add_argument('--dependent', action='store_false', default=True,
-                    help="color countries with their dependent territories")
+                    help="color countries without their dependent territories")
 
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
