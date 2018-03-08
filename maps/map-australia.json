@@ -44,6 +44,12 @@
 			"marker-size": [30, 30]
 		},
 		{
+			"name": "New Caledonia",
+			"out": "Caledonia",
+			"marker-size": [70, 70],
+			"marker-offset": [-15, -15]
+		},
+		{
 			"name": "New Zealand",
 			"out": "New"
 		},
