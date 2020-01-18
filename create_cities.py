@@ -107,15 +107,13 @@ class CityInfo:
             self.marker_size = None
             self.marker_offset = None
             self.out_name = None
-            if isinstance(data, unicode):
-                self.name = data.encode()
-            elif isinstance(data, str):
+            if isinstance(data, str):
                 self.name = data
             else:
                 assert(isinstance(data, dict))
-                self.name = data['name'].encode()
+                self.name = data['name']
                 if 'out' in data:
-                    self.out_name = data['out'].encode()
+                    self.out_name = data['out']
                 if 'marker-size' in data:
                     self.marker_size = tuple(data['marker-size'])
                 if 'marker-offset' in data:
@@ -344,7 +342,7 @@ def cities_layer(names):
 
 def get_all_cities(names):
     ds = Shapefile(file=cities_file)
-    result = {x['NAMEASCII'].encode(): x for x in ds.all_features() 
+    result = {x['NAMEASCII']: x for x in ds.all_features() 
                 if x['NAMEASCII'] in names
                 if not args.capitals or x['FEATURECLA'].startswith('Admin-0 capital')
                 if not args.region_capitals or x['FEATURECLA'] == 'Admin-1 capital'}
@@ -362,7 +360,7 @@ def get_projected_coordinates(m, feature):
 # Base map
 
 def base_map(data, width, height):
-    m = Map(width, height, data['proj'].encode())
+    m = Map(width, height, data['proj'])
 
     if args.land:
         m.background = Color('#b3e2ee')
@@ -410,7 +408,7 @@ for city in cities:
 features = get_all_cities(names)
 coords = []
 
-for name, f in features.iteritems():
+for name, f in features.items():
     c = get_projected_coordinates(m, f)
     coords.append({
         'name': cities_dict[name].out_name,

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import sys
 import argparse
@@ -128,22 +127,20 @@ class CountryInfo:
         self.one_color = False
         self.markers = []
         self.out_name = None
-        if isinstance(data, unicode):
-            self.name = data.encode()
-        elif isinstance(data, str):
+        if isinstance(data, str):
             self.name = data
         else:
             assert(isinstance(data, dict))
-            self.name = data['name'].encode()
+            self.name = data['name']
             if 'out' in data:
-                self.out_name = data['out'].encode()
+                self.out_name = data['out']
             if 'disputed' in data:
                 disputed = data['disputed']
-                if isinstance(disputed, unicode) or isinstance(disputed, str):
+                if isinstance(disputed, str):
                     disputed = [disputed]
-                self.disputed = [s.encode() for s in disputed]
+                self.disputed = [s for s in disputed]
             if 'extra-disputed' in data:
-                self.extra_disputed = data['extra-disputed'].encode()
+                self.extra_disputed = data['extra-disputed']
             if 'one-color' in data:
                 self.one_color = data['one-color']
             if 'disputed-boundary' in data:
@@ -315,7 +312,7 @@ def marker_layer(name, marker, layer_name=None):
 # Base map
 
 def create_base_map(data, width, height):
-    m = Map(width, height, data["proj"].encode(), data["bbox"])
+    m = Map(width, height, data["proj"], data["bbox"])
     if args.land_only:
         m.layers.append(land_layer())
     elif args.country_only:
@@ -348,7 +345,7 @@ def add_country_layers(m, info):
             m.layers.append(layer)
 
 def create_map(data, width, height, info):
-    m = Map(width, height, data["proj"].encode(), data["bbox"])
+    m = Map(width, height, data["proj"], data["bbox"])
     if args.land_only:
         m.layers.append(land_layer())
         add_country_layers(m, info)

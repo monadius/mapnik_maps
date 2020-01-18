@@ -4,6 +4,8 @@ out*/
 maps_out/
 mapnik/
 node_modules/
+tmp/
+a.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

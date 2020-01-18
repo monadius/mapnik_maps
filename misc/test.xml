@@ -7,16 +7,16 @@
     </Rule>
   </Style>
 
-  <Style name="Marker Style">
+  <!-- <Style name="Marker Style">
     <Rule>
       <Filter>[name]='Germany'</Filter>
       <MarkersSymbolizer file="/Users/monad/Work/projects/mapnik_maps/tiny.svg" transform="translate(100,0)"/>
     </Rule>
-  </Style>
+  </Style> -->
 
   <Layer name="world" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
     <StyleName>My Style</StyleName>
-    <StyleName>Marker Style</StyleName>
+    <!-- <StyleName>Marker Style</StyleName> -->
     <Datasource>
       <Parameter name="type">shape</Parameter>
       <Parameter name="file">/Users/monad/Work/data/110m_cultural/ne_110m_admin_0_countries.shp</Parameter>
