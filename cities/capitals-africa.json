@@ -1,5 +1,6 @@
 {
     "name": "CapitalsAfrica",
+    "out-name": "capitals-africa",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [-27,-38,60,42],
     "xd-size": [1104, 900],

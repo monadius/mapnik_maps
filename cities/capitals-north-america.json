@@ -1,5 +1,6 @@
 {
     "name": "CapitalsNorthAmerica",
+    "out-name": "capitals-north-america",
     "proj": "+proj=lcc +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
     "bbox0": [-6248508,-3237996,3510660,5827786],
     "bbox1": [-5580124,-4276728,5820708,4618640],

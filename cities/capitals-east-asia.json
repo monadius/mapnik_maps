@@ -1,5 +1,6 @@
 {
     "name": "CapitalsEastAsia",
+    "out-name": "capitals-asia",
     "proj": "+proj=mill +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +R_A +datum=WGS84 +units=m +no_defs",
     "bbox0": [5016064,-1687689,16769353,7611505],
     "bbox": [6029549,-1084985,16839889,7349659],

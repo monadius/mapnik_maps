@@ -388,7 +388,8 @@ city_names = set([city.name for city in cities]) | set([city.name for city in ex
 add_layer_with_style(m, cities_layer(city_names), 
                      cities_style(city_names, size=args.marker_size), 'All Cities')
 
-render_to_file(m, os.path.join(args.out, 'a.png'), out_format, args.scale)
+out_name = data.get('out-name', 'a')
+render_to_file(m, os.path.join(args.out, out_name + '.png'), out_format, args.scale)
 
 def check_name(name):
     if not args.cities:
@@ -424,6 +425,6 @@ result = {
     'cities': coords
 }
 
-plistlib.writePlist(result, os.path.join(args.out, 'a.plist'))
+plistlib.writePlist(result, os.path.join(args.out, out_name + '.plist'))
 
 print("done")

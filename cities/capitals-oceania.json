@@ -1,5 +1,6 @@
 {
     "name": "CapitalsOceania",
+    "out-name": "capitals-oceania",
     "proj": "+proj=lcc +lat_1=-18 +lat_2=-36 +lat_0=-27 +lon_0=132 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
     "bbox0": [-2310855,-4586868,10587388,5635248],
     "bbox": [-3435789,-3587648,8134319,5439795],

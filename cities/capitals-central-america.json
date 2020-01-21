@@ -1,5 +1,6 @@
 {
     "name": "CapitalsCentralAmerica",
+    "out-name": "capitals-central-america",
     "proj": "+proj=longlat +datum=WGS84 +no_defs",
     "bbox": [-94,5,-59,30],
     "xd-size": [1104, 900],
