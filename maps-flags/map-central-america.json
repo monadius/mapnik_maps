@@ -1,0 +1,29 @@
+{
+    "name": "CentralAmerica",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [-94,5,-59,30],
+    "xd-size": [1200, 900],
+    "countries": [
+		{"name": "Antigua and Barbuda", "marker-size": [40, 50], "marker-offset": [0, -10], "out": "Antigua"},
+		{"name": "The Bahamas", "out": "Bahamas"},
+		{"name": "Barbados", "marker-size": [50, 50]},
+		"Belize",
+		{"name": "Costa Rica", "out": "Costa"},
+		"Cuba",
+		{"name": "Dominica", "marker-size": [30, 30]},
+		{"name": "Dominican Republic", "out": "Dominican"},
+		{"name": "Grenada", "marker-size": [40, 40], "marker-offset": [0, 2]},
+		{"name": "Saint Vincent and the Grenadines", "marker-size": [40, 40], "marker-offset": [4, -19], "out": "Grenadines"},
+		"Guatemala",
+		"Haiti",
+		"Honduras",
+		"Jamaica",
+		{"name": "Saint Lucia", "marker-size": [35, 35], "out": "Lucia"},
+		{"name": "Saint Kitts and Nevis", "marker-size": [30, 30], "marker-offset": [-2, -2], "out": "Nevis"},
+		"Nicaragua",
+		"Panama",
+		{"name": "El Salvador", "out": "Salvador"},
+		{"name": "Trinidad and Tobago", "out": "Trinidad"},
+		{"name": "Puerto Rico", "out": "Puerto"}
+    ]
+}
