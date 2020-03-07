@@ -88,6 +88,9 @@ parser.add_argument('--land', action='store_true',
 parser.add_argument('--extra', nargs='*',
                     help="files with additional cities which are not added to the output plist")
 
+parser.add_argument('--debug', action='store_true',
+                    help="debug mode")
+
 parser.add_argument('input_file',
                     help="input JSON data file")
 

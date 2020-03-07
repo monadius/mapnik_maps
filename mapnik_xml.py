@@ -133,7 +133,7 @@ class MarkersSymbolizer:
         if self.rotation:
             transforms.append("rotate({})".format(self.rotation))
         if self.scale:
-            scale = (self.scale,) if isinstance(self.scale, (int, long, float)) else self.scale
+            scale = (self.scale,) if isinstance(self.scale, (int, float)) else self.scale
             transforms.append("scale({})".format(",".join(map(str, scale))))
         set_attrib(el, "transform", " ".join(transforms))
         return el

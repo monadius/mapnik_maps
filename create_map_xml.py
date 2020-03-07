@@ -18,6 +18,8 @@ phys50m_dir = os.path.join(base_dir, '50m_physical')
 edited50m_dir = os.path.join(base_dir, 'edited50m')
 
 land_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
+land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
+
 land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_coastline.shp')
 boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
@@ -121,6 +123,7 @@ class Marker:
 
 class CountryInfo:
     def __init__(self, data):
+        self.no_dependent = False
         self.disputed = None
         self.extra_disputed = None
         self.disputed_boundary = None
@@ -132,6 +135,8 @@ class CountryInfo:
         else:
             assert(isinstance(data, dict))
             self.name = data['name']
+            if 'no-dependent' in data:
+                self.no_dependent = data['no-dependent']
             if 'out' in data:
                 self.out_name = data['out']
             if 'disputed' in data:
@@ -140,7 +145,7 @@ class CountryInfo:
                     disputed = [disputed]
                 self.disputed = [s for s in disputed]
             if 'extra-disputed' in data:
-                self.extra_disputed = data['extra-disputed']
+                self.extra_disputed = [data['extra-disputed']]
             if 'one-color' in data:
                 self.one_color = data['one-color']
             if 'disputed-boundary' in data:
@@ -273,9 +278,9 @@ def boundaries_layer():
 
 # Countries
 
-def country_layer(name, boundary_flag=False):
+def country_layer(name, boundary_flag=False, filter_template=country_filter_template):
     s = Style("Country " + name)
-    s.filter = country_filter_template.format(name)
+    s.filter = filter_template.format(name)
     if args.color:
         s.symbols.append(PolygonSymbolizer(args.color))
     if boundary_flag and args.country_border_color:
@@ -328,7 +333,8 @@ def create_base_map(data, width, height):
 # A map with a country
 
 def add_country_layers(m, info):
-    layer = country_layer(info.name, boundary_flag=args.country_only)
+    filter_template = "[name] = '{0}' or [admin] = '{0}'" if info.no_dependent else country_filter_template
+    layer = country_layer(info.name, boundary_flag=args.country_only, filter_template=filter_template)
     m.layers.append(layer)
     if info.disputed:
         layer = disputed_layer(info.disputed, one_color=info.one_color,
