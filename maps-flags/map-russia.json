@@ -5,6 +5,6 @@
     "bbox2": [-4235028,-5154953,4084281,1438265],
     "xd-size": [1200, 900],
     "countries": [
-	"Russia"
+	    {"name": "Russia", "disputed": "Crimea"}
     ]
 }

@@ -6,7 +6,6 @@
     "countries": [
         "Canada",
         "Mexico",
-        {"name": "United States of America", "out": "United"},
-        "Greenland"
+        {"name": "United States of America", "out": "United"}
     ]
 }
