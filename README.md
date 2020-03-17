@@ -7,7 +7,7 @@ Experiments with [mapnik](https://github.com/mapnik/mapnik).
 The official [guide](https://github.com/mapnik/mapnik/wiki/MacInstallation_Homebrew).
 Also need to install [python-mapnik](https://github.com/mapnik/python-mapnik).
 
-Steps for **mapnik**:
+## Steps for **mapnik**:
 
 ```
 brew install icu4c
@@ -45,7 +45,7 @@ env.Append(CPPDEFINES = 'ACCEPT_USE_OF_DEPRECATED_PROJ_API_H')
 
 (Alternatively, run `brew link --force icu4c` before `brew install boost`).
 
-Steps for **python-mapnik**:
+## Steps for **python-mapnik**:
 
 ```
 virtualenv mapnik
@@ -66,6 +66,13 @@ If the build process fails, then try to install `mapnik` from source code and re
 ```
 export BOOST_PYTHON_LIB=boost_python37
 ```
+
+## Fixing broken virtualenv links
+
+find mapnik -type l -delete
+virtualenv mapnik
+
+From [here](https://stackoverflow.com/a/25947333).
 
 # Links
 
