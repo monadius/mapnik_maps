@@ -69,8 +69,10 @@ export BOOST_PYTHON_LIB=boost_python37
 
 ## Fixing broken virtualenv links
 
+```
 find mapnik -type l -delete
 virtualenv mapnik
+```
 
 From [here](https://stackoverflow.com/a/25947333).
 
