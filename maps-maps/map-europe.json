@@ -1,9 +1,9 @@
 {
-	"name": "Europe",
-	"proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
-	"bbox": [-1834685,566617,3437343,4744805],
-	"xd-size": [1200, 900],
-	"countries": [
+    "name": "Europe",
+    "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
+    "bbox": [-1834685,566617,3437343,4744805],
+    "xd-size": [1200, 900],
+    "countries": [
 	"Albania",
 	{"name": "Andorra", "marker-size": [40, 40]},
 	"Armenia",
@@ -27,7 +27,6 @@
 	"Iceland",
 	"Ireland",
 	"Italy",
-	"Kazakhstan",
 	"Latvia",
 	{"name": "Liechtenstein", "marker-size": [40, 40]},
 	"Lithuania",
@@ -42,7 +41,7 @@
 	"Poland",
 	"Portugal",
 	"Romania",
-	"Russia",
+	{"name": "Russia", "out": "Russia-eu", "disputed": "Crimea"},
 	{"name": "San Marino", "marker-size": [40, 40], "out": "SanMarino"},
 	{"name": "Republic of Serbia", "out": "Serbia", "extra-disputed": "Kosovo"},
 	"Slovakia",

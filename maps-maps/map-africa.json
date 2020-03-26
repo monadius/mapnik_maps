@@ -1,9 +1,9 @@
 {
-	"name": "Africa",
-	"proj": "+proj=longlat +datum=WGS84 +no_defs",
-	"bbox": [-30,-38,65,42],
-	"xd-size": [1200, 900],
-	"countries": [
+    "name": "Africa",
+    "proj": "+proj=longlat +datum=WGS84 +no_defs",
+    "bbox": [-30,-38,65,42],
+    "xd-size": [1200, 900],
+    "countries": [
 	"Algeria",
 	"Angola",
 	"Benin",
