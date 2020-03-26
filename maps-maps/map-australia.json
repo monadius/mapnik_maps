@@ -1,0 +1,92 @@
+{
+	"name": "Australia",
+	"proj": "+proj=lcc +lat_1=-18 +lat_2=-36 +lat_0=-27 +lon_0=132 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+	"bbox": [
+		-2310855,
+		-4586868,
+		10587388,
+		5635248
+	],
+	"xd-size": [
+		1200,
+		900
+	],
+	"countries": [
+		"Australia",
+		{
+			"name": "Federated States of Micronesia",
+			"out": "Federated",
+			"marker-size": [310, 130],
+			"marker-rotation": 15,
+			"marker-offset": [-40, -70]
+		},
+		{
+			"name": "Fiji",
+			"marker-size": [95, 110],
+			"marker-offset": [35, -30]
+		},
+		{
+			"name": "Kiribati",
+			"markers": [
+				{"marker-center": "Nauru", "marker-size": [93, 105], "marker-offset": [65, 18]},
+				{"marker-center": "Nauru", "marker-size": [65, 60], "marker-offset": [195, 113]},
+				{"marker-center": "Nauru", "marker-size": [83, 212], "marker-offset": [346, 188]}
+			]
+		},
+		{
+			"name": "Marshall Islands",
+			"out": "Marshall",
+			"marker-size": [100, 150],
+			"marker-offset": [15, -55]
+		},
+		{
+			"name": "Nauru",
+			"marker-size": [30, 30]
+		},
+		{
+			"name": "New Caledonia",
+			"out": "Caledonia",
+			"marker-size": [70, 70],
+			"marker-offset": [-15, -15]
+		},
+		{
+			"name": "New Zealand",
+			"out": "New"
+		},
+		{
+			"name": "Palau",
+			"marker-size": [80, 85],
+			"marker-offset": [12, -25]
+		},
+		{
+			"name": "Papua New Guinea",
+			"out": "Papua"
+		},
+		{
+			"name": "Samoa",
+			"marker-size": [30, 30],
+			"marker-offset": [-5, -5]
+		},
+		{
+			"name": "Solomon Islands",
+			"out": "Solomon",
+			"marker-size": [140, 110],
+			"marker-offset": [-65, -45]
+		},
+		{
+			"name": "Tonga",
+			"marker-size": [40, 75],
+			"marker-offset": [22, -32]
+		},
+		{
+			"name": "Tuvalu",
+			"marker-size": [65, 85],
+			"marker-offset": [-9, -23]
+		},
+		{
+			"name": "Vanuatu",
+			"marker-size": [50, 85],
+			"marker-offset": [-5, -38]
+		}
+	]
+}
