@@ -41,7 +41,7 @@
 	"Poland",
 	"Portugal",
 	"Romania",
-	{"name": "Russia", "out": "Russia-eu", "disputed": "Crimea"},
+	{"name": "Russia", "out": "Russia-europe", "disputed": "Crimea"},
 	{"name": "San Marino", "marker-size": [40, 40], "out": "SanMarino"},
 	{"name": "Republic of Serbia", "out": "Serbia", "extra-disputed": "Kosovo"},
 	"Slovakia",
