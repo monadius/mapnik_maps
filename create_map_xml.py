@@ -23,12 +23,14 @@ land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
 land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_coastline.shp')
 boundaries_file_50m = os.path.join(edited50m_dir, 'ne_50m_admin_0_boundary_lines_land.shp')
 countries_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_countries.shp')
+units_file_50m = os.path.join(cult50m_dir, 'ne_50m_admin_0_map_units.shp')
 lakes_file_50m = os.path.join(phys50m_dir, 'ne_50m_lakes.shp')
 
 land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 boundaries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_boundary_lines_land.shp')
 countries_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_countries.shp')
+units_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_map_units.shp')
 lakes_file_10m = os.path.join(phys10m_dir, 'ne_10m_lakes.shp')
 
 disputed_file = os.path.join(edited50m_dir, 'ne_50m_admin_0_disputed_areas.shp')
@@ -129,12 +131,15 @@ class CountryInfo:
         self.disputed_boundary = None
         self.one_color = False
         self.markers = []
+        self.geounit_name = None
         self.out_name = None
         if isinstance(data, str):
             self.name = data
         else:
             assert(isinstance(data, dict))
             self.name = data['name']
+            if 'geounit' in data:
+                self.geounit_name = data['geounit']
             if 'no-dependent' in data:
                 self.no_dependent = data['no-dependent']
             if 'out' in data:
@@ -180,12 +185,14 @@ if args.use50m:
     land_boundaries_file = land_boundaries_file_50m
     boundaries_file = boundaries_file_50m
     countries_file = countries_file_50m
+    units_file = units_file_50m
     lakes_file = lakes_file_50m
 else:
     land_file = land_file_10m
     land_boundaries_file = land_boundaries_file_10m
     boundaries_file = boundaries_file_10m
     countries_file = countries_file_10m
+    units_file = units_file_10m
     lakes_file = lakes_file_10m
 
 if args.dependent:
@@ -287,6 +294,15 @@ def country_layer(name, boundary_flag=False, filter_template=country_filter_temp
         s.symbols.append(LineSymbolizer(args.country_border_color, 1.5))
     return Layer("Country " + name, countries_file, s)
 
+def geounit_layer(name, boundary_flag=False, filter_template="[geounit] = '{0}'"):
+    s = Style("Geounit " + name)
+    s.filter = filter_template.format(name)
+    if args.color:
+        s.symbols.append(PolygonSymbolizer(args.color))
+    if boundary_flag and args.country_border_color:
+        s.symbols.append(LineSymbolizer(args.country_border_color, 1.5))
+    return Layer("Geounit " + name, units_file, s)
+
 def disputed_layer(names, one_color=False, boundary=False, data_file=disputed_file):
     name = "Disputed " + ",".join(names)
     s = Style(name)
@@ -333,8 +349,11 @@ def create_base_map(data, width, height):
 # A map with a country
 
 def add_country_layers(m, info):
-    filter_template = "[name] = '{0}' or [admin] = '{0}'" if info.no_dependent else country_filter_template
-    layer = country_layer(info.name, boundary_flag=args.country_only, filter_template=filter_template)
+    if info.geounit_name:
+        layer = geounit_layer(info.geounit_name, boundary_flag=args.country_only)
+    else:
+        filter_template = "[name] = '{0}' or [admin] = '{0}'" if info.no_dependent else country_filter_template
+        layer = country_layer(info.name, boundary_flag=args.country_only, filter_template=filter_template)
     m.layers.append(layer)
     if info.disputed:
         layer = disputed_layer(info.disputed, one_color=info.one_color,
