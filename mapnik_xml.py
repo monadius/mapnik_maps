@@ -143,6 +143,9 @@ def render_map(map_obj, out_fname, out_format='png', scale=1.0, debug=False):
     import mapnik
     if debug:
         map_obj.write_xml("a.xml")
+    out_dir = os.path.dirname(out_fname)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     m = mapnik.Map(map_obj.width, map_obj.height, map_obj.proj)
     mapnik.load_map_from_string(m, ET.tostring(map_obj.to_xml()))
     m.zoom_all()

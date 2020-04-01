@@ -244,15 +244,6 @@ if not args.out:
 if not os.path.exists(args.out):
     os.makedirs(args.out)
 
-# Styles and layers
-
-def add_layer_with_style(m, layer, style, style_name=None):
-    if not style_name:
-        style_name = layer.name + 'Style'
-    m.append_style(style_name, style)
-    layer.styles.append(style_name)
-    m.layers.append(layer)
-
 # Land
 
 def land_layer():

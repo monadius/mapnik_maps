@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+from mapnik_xml import *
 
 # Global variables
 
@@ -35,8 +36,7 @@ states50m_file =os.path.join(cult50m_dir, 'ne_50m_admin_1_states_provinces_shp.s
 lakes_size = 3
 
 proj4_usa = '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
-coords_48 = (-2607277,-1554066,2391576,1558237)
-zoom_48 = 0.96
+coords_48 = (-2507299.94,-1797501.58,2291598.94,1801672.58)
 coords_ne = (230348, -289948,2331777,1276571)
 coords_all = (-6377775,-2106929,2244702,4808764)
 
@@ -79,6 +79,9 @@ parser.add_argument('--scale', type=float, default=1.0,
 
 parser.add_argument('states', nargs='*',
                     help="create images for given states only")
+
+parser.add_argument('--debug', action='store_true',
+                    help="debug mode")
 
 
 # Parse and validate arguments
@@ -123,209 +126,87 @@ out_format = 'png256' if args.png8 else 'png'
 print("Size: {0} x {1}, scale: {2}".format(width, height, args.scale))
 
 
-# Styles and layers
-
-def add_layer_with_style(m, layer, style, style_name=None):
-    if not style_name:
-        style_name = layer.name + 'Style'
-    m.append_style(style_name, style)
-    layer.styles.append(style_name)
-    m.layers.append(layer)
-
 # Land
 
-def land_style():
-    s = Style()
-    r = Rule()
-
-    ps = PolygonSymbolizer()
-    ps.fill = Color('#f1daa0')
-    r.symbols.append(ps)
-
-#    stk = Stroke(Color('#4fadc2'), 5.0)
-#    ls = LineSymbolizer(stk)
-#    r.symbols.append(ls)
-
-    s.rules.append(r)
-    return s
-
 def land_layer():
-    ds = Shapefile(file=land_file)    
-    layer = Layer('Land')
-    layer.datasource = ds
-    return layer
+    s = Style("Land")
+    s.symbols.append(PolygonSymbolizer('#f1daa0'))
+    return Layer("Land", land_file, s)
 
 # USA
 
-def usa_style():
-    s = Style()
-    r = Rule()
-
-    r.filter = Expression("[admin] = 'United States of America'")
-
-    ps = PolygonSymbolizer()
-    ps.fill = Color('white')
-    r.symbols.append(ps)
-
-    s.rules.append(r)
-    return s
-
 def usa_layer():
-    ds = Shapefile(file=countries_file)
-    layer = Layer('USA')
-    layer.datasource = ds
-    return layer
+    s = Style("USA")
+    s.filter = "[admin] = 'United States of America'"
+    s.symbols.append(PolygonSymbolizer('white'))
+    return Layer("USA", countries_file, s)
 
 # Land boundaries
 
-def land_boundaries_style():
-    s = Style()
-    r = Rule()
-
-#    r.filter = Expression("[admin] = 'United States of America'")
-
-    ls = LineSymbolizer()
-    ls.stroke = Color('#4fadc2')
-    ls.stroke_width = 1.5
-    r.symbols.append(ls)
-
-#    ps = PolygonSymbolizer()
-#    ps.fill = Color('red')
-#    r.symbols.append(ps)
-
-    s.rules.append(r)
-    return s
-
 def land_boundaries_layer():
-    ds = Shapefile(file=land_boundaries_file)
-    layer = Layer('Land Boundaries')
-    layer.datasource = ds
-    return layer
+    s = Style("Land Boundaries")
+    s.symbols.append(LineSymbolizer('#4fadc2', 1.5))
+    return Layer("Land Boundaries", land_boundaries_file, s)
 
 # State boundaries
 
-def state_boundaries_style():
-    s = Style()
-    r = Rule()
-
-    r.filter = Expression("[adm0_name] = 'United States of America'")
-
-    ls = LineSymbolizer()
-    ls.stroke = Color('#808080')
-    ls.stroke_width = 1.5
-    r.symbols.append(ls)
-
-    s.rules.append(r)
-    return s
-
 def state_boundaries_layer():
-    ds = Shapefile(file=state_boundaries_file)
-    layer = Layer('State Boundaries')
-    layer.datasource = ds
-    return layer
+    s = Style("State Boundaries")
+    s.filter = "[adm0_name] = 'United States of America'"
+    s.symbols.append(LineSymbolizer('#808080', 1.5))
+    return Layer("State Boundaries", state_boundaries_file, s)
 
 # Lakes
 
-def lakes_style():
-    s = Style()
-    r = Rule()
-
-    r.filter = Expression("[scalerank] <= {0}".format(lakes_size))
-
-    ps = PolygonSymbolizer()
-    ps.fill = Color('#b3e2ee')
-    r.symbols.append(ps)
-
-    ls = LineSymbolizer()
-    ls.stroke = Color('#4fadc2')
-    ls.stroke_width = 1.5
-    r.symbols.append(ls)
-
-    s.rules.append(r)
-    return s
-
 def lakes_layer():
-    ds = Shapefile(file=lakes_file)
-    layer = Layer('Lakes')
-    layer.datasource = ds
-    return layer
+    s = Style("Lakes")
+    s.filter = "[scalerank] <= {0}".format(lakes_size)
+    s.symbols.append(PolygonSymbolizer('#b3e2ee'))
+    s.symbols.append(LineSymbolizer('#4fadc2', 1.5))
+    return Layer("Lakes", lakes_file, s)
 
 # Boundaries of countries
 
-def country_boundaries_style():
-    s = Style()
-    r = Rule()
-
-    # stk = Stroke()
-    # stk.add_dash(8, 4)
-    # stk.add_dash(2, 2)
-    # stk.add_dash(2, 2)
-    # stk.color = Color('black')
-    # stk.width = 3.0
-    ls = LineSymbolizer()
-    ls.stroke = Color('black')
-    ls.stroke_width = 3.0
-    # TODO: does it work?
-    ls.stroke_dasharray = "[(8,4),(2,2),(2,2)]"
-    r.symbols.append(ls)
-
-    s.rules.append(r)
-    return s
-
 def country_boundaries_layer():
-    ds = Shapefile(file=country_boundaries_file)
-    layer = Layer('Country Boundaries')
-    layer.datasource = ds
-    return layer
+    s = Style("Country Boundaries")
+    ls = LineSymbolizer('black', 3.0)
+    ls.add_dash(8, 4)
+    ls.add_dash(2, 2)
+    ls.add_dash(2, 2)
+    s.symbols.append(ls)
+    return Layer("Country Boundaries", country_boundaries_file, s)
 
 # A state
 
-def state_style(state_abbrev):
-    s = Style()
-    r = Rule()
-
-    r.filter = Expression("[iso_3166_2] = 'US-{0}'".format(state_abbrev.upper()))
-
-    if args.color:
-        ps = PolygonSymbolizer()
-        ps.fill = Color(args.color)
-        r.symbols.append(ps)
-
-    s.rules.append(r)
-    return s
-
 def state_layer(state_abbrev, flag10=False):
-    if flag10:
-        ds = Shapefile(file=states10m_file)
-    else:
-        ds = Shapefile(file=states50m_file)
-    layer = Layer(state_abbrev)
-    layer.datasource = ds
-    return layer
+    s = Style(state_abbrev)
+    s.filter = "[iso_3166_2] = 'US-{0}'".format(state_abbrev.upper())
+    if args.color:
+        ps = PolygonSymbolizer(args.color)
+        s.symbols.append(ps)
+    ds = states10m_file if flag10 else states50m_file
+    return Layer(state_abbrev, ds, s)
 
 # Main map functions
 
-def create_map(proj, coords, width, height, zoom=None):
-    m = Map(width, height, proj)
+def create_map(proj, coords, width, height):
+    m = Map(width, height, proj, coords)
     if args.no_border:
-        add_layer_with_style(m, land_layer(), land_style())
-        add_layer_with_style(m, usa_layer(), usa_style())
-        add_layer_with_style(m, lakes_layer(), lakes_style())
+        m.layers.append(land_layer())
+        m.layers.append(usa_layer())
+        m.layers.append(lakes_layer())
     else:
-        #m.background = Color('#b3e2ee80')
-        m.background = Color('#b3e2ee')
-        add_layer_with_style(m, land_layer(), land_style())
-        add_layer_with_style(m, usa_layer(), usa_style())
-        add_layer_with_style(m, land_boundaries_layer(), land_boundaries_style())
-        add_layer_with_style(m, state_boundaries_layer(), state_boundaries_style())
-        add_layer_with_style(m, lakes_layer(), lakes_style())
-        add_layer_with_style(m, country_boundaries_layer(), country_boundaries_style())
-    m.zoom_to_box(Box2d(*coords))
-    if zoom:
-        m.zoom(zoom)
+        #m.background = '#b3e2ee80'
+        m.background = '#b3e2ee'
+        m.layers.append(land_layer())
+        m.layers.append(usa_layer())
+        m.layers.append(land_boundaries_layer())
+        m.layers.append(state_boundaries_layer())
+        m.layers.append(lakes_layer())
+        m.layers.append(country_boundaries_layer())
     return m
 
-def render_states(m, states, prefix="", suffix=""):
+def render_states(m, states, subdir=None, suffix=""):
     for state in states:
         print("Processing: {0}".format(state))
 
@@ -338,33 +219,28 @@ def render_states(m, states, prefix="", suffix=""):
             while len(m.layers) > 6:
                 del m.layers[pos]
 
-        style = state_style(state)
         layer = state_layer(state, flag10=(state == 'AK'))
-        style_name = layer.name + 'Style'
-        m.append_style(style_name, style)
-        layer.styles.append(style_name)
-        m.layers[pos:pos] = layer
+        m.layers[pos:pos] = [layer]
 
-        out_name = '{0}{1}{2}.png'.format(prefix, state.lower(), suffix)
-        render_to_file(m, os.path.join(args.out_dir, out_name),
-                       out_format, args.scale)
+        out_name = '{0}{1}.png'.format(state.lower(), suffix)
+        out_path = os.path.join(subdir, out_name) if subdir else out_name
+        render_map(m, os.path.join(args.out_dir, out_path),
+                    out_format=out_format, scale=args.scale, debug=args.debug)
 
 # The main script
 
-from mapnik import *
-
-map_48 = create_map(proj4_usa, coords_48, width, height, zoom=zoom_48)
+map_48 = create_map(proj4_usa, coords_48, width, height)
 map_ne = create_map(proj4_usa, coords_ne, width, height)
 map_all = create_map(proj4_usa, coords_all, width, height)
 
-render_to_file(map_48, os.path.join(args.out_dir, 'a_48.png'),
-               out_format, args.scale) 
+render_map(map_48, os.path.join(args.out_dir, '48', 'a.png'), 
+    out_format=out_format, scale=args.scale, debug=args.debug)
 
-render_to_file(map_ne, os.path.join(args.out_dir, 'a_ne.png'),
-               out_format, args.scale)
+render_map(map_ne, os.path.join(args.out_dir, 'ne', 'a.png'), 
+    out_format=out_format, scale=args.scale, debug=args.debug)
 
-render_to_file(map_all, os.path.join(args.out_dir, 'a_all.png'),
-               out_format, args.scale)
+render_map(map_all, os.path.join(args.out_dir, 'all', 'a.png'), 
+    out_format=out_format, scale=args.scale, debug=args.debug)
 
 # Render states
 
@@ -384,15 +260,15 @@ if args.states:
     ne_states = filter(test, ne_states)
     far_states = filter(test, far_states)
 
-# Render all states (48 visible)
-render_states(map_48, states, suffix=args.suffix)
+# Render states
+render_states(map_48, set(states) - set(ne_states + far_states), subdir="48", suffix=args.suffix)
 
 # Render northeastern states
 print("\nRendering northeastern states")
-render_states(map_ne, ne_states, prefix="ne_", suffix=args.suffix)
+render_states(map_ne, ne_states, subdir="ne", suffix=args.suffix)
 
 # Render Alaska and Hawaii
 print("\nRendering Alaska and Hawaii")
-render_states(map_all, far_states, prefix="all_", suffix=args.suffix)
+render_states(map_all, far_states, subdir="all", suffix=args.suffix)
 
 print("done")
