@@ -1,4 +1,3 @@
 {
-    "python.linting.pylintEnabled": false,
-    "python.pythonPath": "${workspaceFolder}/mapnik/bin/python"
+    "python.linting.pylintEnabled": false
 }

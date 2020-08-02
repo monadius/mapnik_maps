@@ -128,19 +128,17 @@ class RegionInfo:
         self.out_name = None
         self.code = None
         self.more = []
-        if isinstance(data, unicode):
-            self.name = data.encode()
-        elif isinstance(data, str):
+        if isinstance(data, str):
             self.name = data
         else:
             assert(isinstance(data, dict))
-            self.name = data['name'].encode()
+            self.name = data['name']
             if 'more' in data:
-                self.more = [s.encode() for s in data['more']]
+                self.more = [s for s in data['more']]
             if 'code' in data:
-                self.code = data['code'].encode()
+                self.code = data['code']
             if 'out' in data:
-                self.out_name = data['out'].encode()
+                self.out_name = data['out']
             if 'marker-size' in data:
                 self.marker_size = tuple(data['marker-size'])
             if 'marker-offset' in data:
@@ -184,10 +182,10 @@ else:
     lakes_file = lakes_file_10m
 
 if 'regions-file' in data:
-    regions_file = data['regions-file'].encode()
+    regions_file = data['regions-file']
 
 if 'region-boundaries-file' in data:
-    region_boundaries_file = data['region-boundaries-file'].encode()
+    region_boundaries_file = data['region-boundaries-file']
 
 # Validate arguments
 
@@ -507,7 +505,7 @@ def tiny_layer(name):
 # Base map
 
 def base_map(data, width, height):
-    m = Map(width, height, data['proj'].encode())
+    m = Map(width, height, data['proj'])
     admin = data['admin']
     if args.admin_only:
         add_layer_with_style(m, admin_layer(),

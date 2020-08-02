@@ -29,7 +29,7 @@ make install
 
 In case of errors, it may be required to define some variables:
 ```
-./configure SQLITE_INCLUDES=/usr/local/opt/sqlite/include
+./configure SQLITE_INCLUDES=/usr/local/opt/sqlite/include CUSTOM_DEFINES="-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H=1"
 ```
 
 If the library `proj` is not detected then it is necessary to manually edit the `SConstruct` script:
@@ -64,7 +64,7 @@ rm -rf python-mapnik
 
 If the build process fails, then try to install `mapnik` from source code and repeat the build process. Additionally it may be required to set a custom version of `boost-python` library:
 ```
-export BOOST_PYTHON_LIB=boost_python37
+export BOOST_PYTHON_LIB=boost_python38
 ```
 
 ## Fixing broken virtualenv links
