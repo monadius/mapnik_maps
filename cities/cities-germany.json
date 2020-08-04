@@ -1,5 +1,6 @@
 {
     "name": "CitiesGermany",
+    "out-name": "germany_cities",
     "proj": "+proj=lcc +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs",
     "bbox": [
         -324983,

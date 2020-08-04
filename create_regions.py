@@ -17,6 +17,7 @@ edited50m_dir = os.path.join(base_dir, 'edited50m')
 
 # 50m data files
 
+cities_file_50m = os.path.join(cult50m_dir, 'ne_50m_populated_places.shp')
 land_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
 #land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_land.shp')
 land_boundaries_file_50m = os.path.join(phys50m_dir, 'ne_50m_coastline.shp')
@@ -30,6 +31,7 @@ land_file_50m = countries_file_50m
 
 # 10m data files
 
+cities_file_10m = os.path.join(cult10m_dir, 'ne_10m_populated_places.shp')
 #land_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
 land_file_10m = os.path.join(cult10m_dir, 'ne_10m_admin_0_sovereignty.shp')
 land_boundaries_file_10m = os.path.join(phys10m_dir, 'ne_10m_land.shp')
@@ -81,6 +83,24 @@ parser.add_argument('--color', default='red',
 #parser.add_argument('--line-color', default='black',
 #                    help="border line color (use 'none' for no borders)")
 
+parser.add_argument('--cities',
+                    help="input JSON data file for cities")
+
+parser.add_argument('--capitals', action='store_true',
+                    help="select capitals only")
+
+parser.add_argument('--region-capitals', action='store_true',
+                    help="select regional capitals only")
+
+parser.add_argument('--marker-size', type=float, default=8.0,
+                    help="marker size for cities")
+
+parser.add_argument('--border', type=float, default=1.8,
+                    help="marker border width for cities (0 = no border)")
+
+parser.add_argument('--border-color', default='black',
+                    help="marker border color for cities")
+
 parser.add_argument('--scale', type=float, default=1.0,
                     help="scale for lines")
 
@@ -105,7 +125,7 @@ parser.add_argument('--region-only', action='store_true',
 parser.add_argument('--land-only', action='store_true',
                     help="render the land layer only")
 
-parser.add_argument('--test', action='store_true',
+parser.add_argument('--base-map-only', action='store_true',
                     help="produce one map only")
 
 parser.add_argument('input_file',
@@ -149,7 +169,41 @@ class RegionInfo:
 regions = []
 for region in data['regions']:
     regions.append(RegionInfo(region))
-                
+
+class CityInfo:
+    def __init__(self, data):
+        try:
+            self.marker_size = None
+            self.marker_offset = None
+            self.out_name = None
+            if isinstance(data, str):
+                self.name = data
+            else:
+                assert(isinstance(data, dict))
+                self.name = data['name']
+                if 'out' in data:
+                    self.out_name = data['out']
+                if 'marker-size' in data:
+                    self.marker_size = tuple(data['marker-size'])
+                if 'marker-offset' in data:
+                    self.marker_offset = tuple(data['marker-offset'])
+        except UnicodeEncodeError as e:
+            report_error("Bad character in: {0}".format([data]))
+            raise e
+        if not self.out_name:
+            self.out_name = self.name
+
+cities = []
+cities_dict = {}
+if args.cities:
+    with open(args.cities) as f:
+        cities_data = json.load(f)
+    for city in cities_data['cities']:
+        info = CityInfo(city)
+        cities.append(info)
+        cities_dict[info.name] = info
+
+
 # Validate data
 
 if 'admin' not in data:
@@ -169,12 +223,14 @@ if ('proj' not in data) or ('bbox' not in data):
 xd_width, xd_height = data['xd-size']
 
 if args.use50m:
+    cities_file = cities_file_50m
     land_file = land_file_50m
     land_boundaries_file = land_boundaries_file_50m
     boundaries_file = boundaries_file_50m
     countries_file = countries_file_50m
     lakes_file = lakes_file_50m
 else:
+    cities_file = cities_file_10m
     land_file = land_file_10m
     land_boundaries_file = land_boundaries_file_10m
     boundaries_file = boundaries_file_10m
@@ -236,6 +292,9 @@ if not os.path.exists(args.out):
 if not os.path.isdir(args.out):
     report_error("The output path is not a directory: {0}".format(args.out))
     sys.exit(1)
+
+def escape(s):
+    return s.replace("'", "\\'").replace('"', '\\"')
 
 # Styles and layers
 
@@ -502,6 +561,51 @@ def tiny_layer(name):
     layer.datasource = ds
     return layer
 
+# Cities
+
+def cities_style(names, size=(10,10), offset=None):
+    s = Style()
+    r = Rule()
+    if isinstance(size, float) or isinstance(size, int):
+        size = (size, size)
+
+    name_filter = " or ".join(["[NAMEASCII] = '{0}'".format(escape(name)) for name in names])
+    if args.capitals:
+        name_filter = "([FEATURECLA] = 'Admin-0 capital' or [FEATURECLA] = 'Admin-0 capital alt') and ({0})".format(name_filter)
+    if args.region_capitals:
+        name_filter = "[FEATURECLA] = 'Admin-1 capital' and ({0})".format(name_filter)
+    r.filter = Expression(name_filter)
+
+    ms = MarkersSymbolizer()
+    ms.allow_overlap = True
+    # ms.max_error = 0
+
+    if args.color:
+        ms.fill = Color(args.color)
+#        ms.opacity = 0.4
+
+    if args.border > 0:
+        ms.stroke = Color(args.border_color)
+        ms.stroke_width = args.border
+    else:
+        ms.stroke_width = 0
+
+    ms.width = Expression('{0}'.format(size[0] * args.scale))
+    ms.height = Expression('{0}'.format(size[1] * args.scale))
+    if offset:
+        ms.transform = 'translate({0}, {1})'.format(offset[0] * offset_scale_x, offset[1] * offset_scale_y)
+
+    r.symbols.append(ms)
+    s.rules.append(r)
+    return s
+
+def cities_layer(names):
+    ds = Shapefile(file=cities_file)
+    layer = Layer("Cities " + ",".join(names))
+    layer.datasource = ds
+    return layer
+
+
 # Base map
 
 def base_map(data, width, height):
@@ -538,6 +642,12 @@ def base_map(data, width, height):
                              land_boundaries_style(), 'Land Boundaries Style')
         add_layer_with_style(m, lakes_layer(),
                              lakes_style(), 'Lakes Style')
+    if cities:
+        city_names = set([city.name for city in cities])
+        add_layer_with_style(m, cities_layer(city_names), 
+                     cities_style(city_names, size=args.marker_size), 'All Cities')
+
+
     m.zoom_to_box(Box2d(*data['bbox']))
     return m
 
@@ -588,8 +698,8 @@ admin = data['admin']
 m = base_map(data, width, height)
 render_to_file(m, os.path.join(args.out, 'a.png'), out_format, args.scale)
 
-if args.test:
-    print("done (test)")
+if args.base_map_only:
+    print("done (base map only)")
     exit(0)
 
 def check_name(name):
