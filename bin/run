@@ -1,0 +1,9 @@
+DATA=/mnt/data/work/data/geo
+OUT=/mnt/data/work/git/my/mapnik_maps/out
+
+IMAGE=mapnik:latest
+
+sudo docker run --rm -it \
+    -v $DATA:/Users/monad/Work/data:ro \
+    -v $OUT:/home/mapnik/out \
+    $IMAGE
