@@ -6,6 +6,7 @@ mapnik/
 node_modules/
 tmp/
 a.xml
+maps_out.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

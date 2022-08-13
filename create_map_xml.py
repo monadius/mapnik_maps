@@ -403,7 +403,7 @@ for country in countries:
     name = country.name
     if not check_name(name):
         continue
-    print("Processing: {0}".format(name))
+    print("Processing: {0}".format(name), flush=True)
     m = create_map(data, width, height, country)
     out_name = os.path.join(args.out, "{0}.png".format(country.out_name))
     render_map(m, out_name, out_format=out_format, scale=args.scale, debug=args.debug)

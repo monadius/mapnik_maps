@@ -1,0 +1,14 @@
+DATA=/mnt/data/work/data/geo
+OUT=/mnt/data/work/git/my/mapnik_maps/out
+
+IMAGE=mapnik:latest
+
+args="$@"
+CMD="python3 create_map_xml.py $args"
+COPY="cp -r out_* out"
+
+sudo docker run --rm \
+    -v $DATA:/Users/monad/Work/data:ro \
+    -v $OUT:/home/mapnik/out \
+    $IMAGE \
+    bash -c "$CMD && $COPY"
