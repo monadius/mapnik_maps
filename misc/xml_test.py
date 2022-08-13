@@ -43,7 +43,7 @@ m.layers.append(land)
 #m.write_xml("a.xml")
 
 if len(sys.argv) > 1:
-    render_map(m, "a.png")
+    render_map(m, "a.png", debug=True)
     # import mapnik
     # m = mapnik.Map(1000, 900)
     # mapnik.load_map(m, "a.xml")
