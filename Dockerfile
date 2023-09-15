@@ -16,3 +16,4 @@ COPY --chown=mapnik *.py /home/mapnik/
 COPY --chown=mapnik *.svg /home/mapnik/
 COPY --chown=mapnik misc/* /home/mapnik/misc/
 COPY --chown=mapnik maps-flags/* /home/mapnik/maps-flags/
+COPY --chown=mapnik maps/* /home/mapnik/maps/
